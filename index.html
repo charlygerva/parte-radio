@@ -169,7 +169,7 @@
       <textarea id="encabezado" rows="3" style="min-height:84px"></textarea>
       <label class="f" for="personalTitulo">Título de la sección de personal</label>
       <input type="text" id="personalTitulo" class="upper">
-      <label class="chk"><input type="checkbox" id="negrita"> Poner en <b>negrita</b> el encabezado, la fecha y el lugar (formato WhatsApp *texto*)</label>
+      <p class="hint">En WhatsApp todo sale en <b>negrita</b> (con *asteriscos*), salvo el contenido del parte.</p>
     </details>
   </section>
 
@@ -526,8 +526,8 @@
     const [y, m, d] = v.split("-"); return d + "/" + m + "/" + y.slice(2);
   }
   function buildMessage() {
-    const b = $("negrita").checked;
-    const bold = s => (b && s.trim()) ? "*" + s.trim() + "*" : s;
+    // Negrita de WhatsApp en todo menos el contenido: *texto* en cada línea
+    const bold = s => s.trim() ? "*" + s.trim().replace(/\*/g, "") + "*" : "";
     const header = ($("encabezado").value || DEF_HEADER).split("\n").map(l => bold(l)).join("\n");
     const titulo = $("titulo").value.trim().toUpperCase();
     const lugar = $("lugar").value.trim().toUpperCase();
@@ -537,10 +537,14 @@
     if (titulo) out += "\n\n" + bold(titulo);
     if (lugar) out += "\n\n" + bold(lugar);
     if (cont) out += "\n\n" + cont;
-    if (pers.length) out += "\n\n" + (($("personalTitulo").value.trim().toUpperCase()) || DEF_PERS_TITLE) + "\n" + pers.join("\n");
+    if (pers.length) out += "\n\n" + bold(($("personalTitulo").value.trim().toUpperCase()) || DEF_PERS_TITLE) + "\n" + pers.map(bold).join("\n");
     return out;
   }
-  function refreshPreview() { $("preview").textContent = buildMessage(); }
+  // Vista previa como la muestra WhatsApp (los *asteriscos* se ven en negrita)
+  function refreshPreview() {
+    const esc = buildMessage().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    $("preview").innerHTML = esc.replace(/\*([^*\n]+)\*/g, "<b>$1</b>");
+  }
 
   const FIELDS = ["titulo", "lugar", "contenido", "personal", "encabezado", "personalTitulo"];
   function loadFields() {
@@ -550,7 +554,6 @@
     $("lugar").value = store.get("lugar", "");
     $("contenido").value = store.get("contenido", "");
     $("personal").value = store.get("personal", "");
-    $("negrita").checked = store.get("negrita", false);
     $("fecha").value = todayISO();
     ["gap", "margin", "border", "radius"].forEach(id => { const v = store.get("set_" + id, null); if (v !== null) $(id).value = v; });
     const sh = store.get("set_shadow", null); if (sh !== null) $("shadow").checked = sh;
@@ -577,7 +580,6 @@
     }
     return true;
   }
-  $("negrita").addEventListener("change", () => { store.set("negrita", $("negrita").checked); refreshPreview(); });
   function rememberLugar() {
     const l = $("lugar").value.trim().toUpperCase(); if (!l) return;
     const list = store.get("lugares", []).filter(x => x !== l); list.unshift(l); store.set("lugares", list.slice(0, 30));
