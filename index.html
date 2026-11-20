@@ -55,6 +55,11 @@
   .iconpick .lbl{font-size:12px;color:var(--muted);margin-right:2px}
   .iconpick button{min-height:34px;padding:4px 10px;font-size:15px;font-weight:600}
   .iconpick button.on{border:2px solid var(--navy);background:#e8eef8;color:var(--navy)}
+  .iconpick .cur{min-width:120px;justify-content:space-between}
+  .emogrid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:6px;padding:8px;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.08);width:100%}
+  .emogrid button{min-height:42px;padding:0;font-size:22px;font-weight:400;border-radius:8px}
+  .emogrid button.wide{grid-column:span 4;font-size:14px;font-weight:600}
+  .emogrid button.on{border:2px solid var(--navy);background:#e8eef8}
   .perslist{display:grid;grid-template-columns:1fr;gap:6px}
   @media (min-width:520px){.perslist{grid-template-columns:1fr 1fr}}
   .perslist label{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd;font-size:14.5px;cursor:pointer;user-select:none}
@@ -166,6 +171,7 @@
     <label class="f" for="lugar">Lugar / dependencia <span class="opt">(opcional)</span></label>
     <input type="text" id="lugar" class="upper" list="lugares" placeholder="Ej: COMISARIA 4TA" autocomplete="off">
     <datalist id="lugares"></datalist>
+    <div class="iconpick" id="iconLugar"></div>
 
     <label class="f" for="contenido">Contenido del parte <span class="req">*</span></label>
     <textarea id="contenido" rows="6" required placeholder="Se realiza la instalación de equipo base en oficina de guardia quedando en svc.&#10;Se retira xtl5000 fuera de svc..."></textarea>
@@ -179,13 +185,15 @@
     </div>
     <label class="f" for="personal">Otro personal <span class="opt">(opcional, uno por línea)</span></label>
     <textarea id="personal" rows="2" style="min-height:60px" placeholder="Si no está en la lista, escribilo acá"></textarea>
+    <label class="chk"><input type="checkbox" id="persTitulo"> Poner el título <b>“PERSONAL INTERVINIENTE:”</b> arriba del personal</label>
+    <div class="iconpick" id="iconPers"></div>
 
     <details>
       <summary>Encabezado fijo y formato</summary>
       <label class="f" for="encabezado">Encabezado (siempre igual)</label>
       <textarea id="encabezado" rows="3" style="min-height:84px"></textarea>
       <p class="hint">En WhatsApp todo sale en <b>negrita</b> (con *asteriscos*), salvo el contenido del parte.<br>
-      Íconos automáticos: 🎤 audio · 🚔 móvil (no los Beta 1, 2, 6, 7, 8 y 9, que son nuestros) · 🏢 dependencia policial · 📌 todo lo demás.</p>
+      Los íconos arrancan en "Sin ícono". Si elegís "Auto": 🎤 audio · 🚔 móvil (no los Beta 1, 2, 6, 7, 8 y 9, que son nuestros) · 🏢 dependencia policial · 📌 todo lo demás (en el lugar: 🏢 si es una dependencia, si no 📍). Con "Sin ícono" el renglón sale sin ícono.</p>
     </details>
   </section>
 
@@ -203,7 +211,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 12 · 20/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 14 · 20/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -627,24 +635,59 @@
     const cont = $("contenido").value.trim();
     const pers = selectedPersonal().concat($("personal").value.split("\n").map(s => s.trim()).filter(Boolean));
     let out = header + "\n\n" + EMO.fecha + " " + bold(fechaLarga());
-    if (titulo) out += "\n\n" + iconFor("titulo") + " " + bold(titulo);
-    if (lugar) out += "\n\n" + EMO.lugar + " " + bold(lugar);
-    if (cont) out += "\n\n" + iconFor("contenido") + " " + cont;
-    if (pers.length) out += "\n\n" + pers.map(n => EMO.punto + " " + bold(/[.!]$/.test(n) ? n : n + ".")).join("\n");
+    const pre = id => { const ic = iconFor(id); return ic ? ic + " " : ""; };
+    if (titulo) out += "\n\n" + pre("titulo") + bold(titulo);
+    if (lugar) out += "\n\n" + pre("lugar") + bold(lugar);
+    if (cont) out += "\n\n" + pre("contenido") + cont;
+    if (pers.length) {
+      out += "\n\n";
+      if ($("persTitulo").checked) out += pre("pers") + bold("PERSONAL INTERVINIENTE:") + "\n";
+      out += pers.map(n => EMO.punto + " " + bold(/[.!]$/.test(n) ? n : n + ".")).join("\n");
+    }
     return out;
   }
-  // Ícono elegido a mano o automático
-  const iconMode = { titulo: "auto", contenido: "auto" };
-  function iconFor(id) { return iconMode[id] === "auto" ? detectIcon($(id).value) : iconMode[id]; }
+  // Ícono de título, lugar y contenido: automático, a elección o sin ícono
+  const ICONOS = ["📌","🎤","🚔","🏢","📍","✅","🛑","⚪","🎙️","🪛","🔧","🛠️","⚒️","🔩","⚙️","🎶",
+                  "🔵","🟢","🟠","🟡","🔹","🔷","▫️","▪️","🟥","🟨","🟩","🟦","⬜","🚓","🚨","⛽"];
+  const ICONOS_PERS = ["👮‍♀️", "👮🏼‍♂️", "👮🏽‍♂️", "👮🏽‍♀️", "👮‍♂️"];
+  const iconMode = { titulo: "none", lugar: "none", contenido: "none", pers: "none" };  // por defecto: sin ícono
+  let pickOpen = null;
+  function autoIcon(id) {
+    if (id === "lugar") return RX_DEP.test($("lugar").value) ? EMO.dep : EMO.lugar;
+    return detectIcon($(id).value);
+  }
+  function iconFor(id) {
+    const m = iconMode[id];
+    return m === "auto" ? autoIcon(id) : m === "none" ? "" : m;
+  }
   function renderIconPicks() {
-    [["titulo", "iconTitulo"], ["contenido", "iconContenido"]].forEach(([id, box]) => {
-      const el = $(box); el.innerHTML = "<span class=\"lbl\">Ícono:</span>";
-      [["auto", "Auto " + detectIcon($(id).value)], [EMO.pin, EMO.pin], [EMO.audio, EMO.audio], [EMO.movil, EMO.movil], [EMO.dep, EMO.dep]].forEach(([val, txt]) => {
+    // [campo, caja, ¿tiene Auto?, íconos disponibles]
+    [["titulo", "iconTitulo", true, ICONOS], ["lugar", "iconLugar", true, ICONOS], ["contenido", "iconContenido", true, ICONOS],
+     ["pers", "iconPers", false, ICONOS_PERS]].forEach(([id, box, hasAuto, list]) => {
+      const el = $(box);
+      if (id === "pers") el.style.display = $("persTitulo").checked ? "" : "none";
+      el.innerHTML = "<span class=\"lbl\">" + (id === "pers" ? "Ícono del título:" : "Ícono:") + "</span>";
+      const m = iconMode[id];
+      const cur = document.createElement("button"); cur.type = "button"; cur.className = "cur";
+      cur.textContent = (m === "auto" ? "Auto " + autoIcon(id) : m === "none" ? "Sin ícono" : m) + "  ▾";
+      cur.addEventListener("click", () => { pickOpen = pickOpen === id ? null : id; renderIconPicks(); });
+      el.appendChild(cur);
+      if (pickOpen !== id) return;
+      const grid = document.createElement("div"); grid.className = "emogrid";
+      const add = (val, txt, wide) => {
         const b = document.createElement("button"); b.type = "button"; b.textContent = txt;
-        b.className = iconMode[id] === val ? "on" : "";
-        b.addEventListener("click", () => { iconMode[id] = val; renderIconPicks(); refreshPreview(); });
-        el.appendChild(b);
-      });
+        b.className = (wide ? "wide " : "") + (m === val ? "on" : "");
+        b.addEventListener("click", () => {
+          iconMode[id] = val; pickOpen = null;
+          if (id === "pers") store.set("persIcon", val);
+          renderIconPicks(); refreshPreview();
+        });
+        grid.appendChild(b);
+      };
+      if (hasAuto) add("auto", "Auto (" + autoIcon(id) + ")", true);
+      add("none", "Sin ícono", true);
+      list.forEach(ic => add(ic, ic, false));
+      el.appendChild(grid);
     });
   }
   // Vista previa como la muestra WhatsApp (los *asteriscos* se ven en negrita)
@@ -670,6 +713,7 @@
     const k = selectedPersonal().length;
     $("persCount").textContent = k ? (k === 1 ? "1 seleccionado" : k + " seleccionados") : "Nadie seleccionado";
   }
+  $("persTitulo").addEventListener("change", () => { store.set("persTitulo", $("persTitulo").checked); if (pickOpen === "pers") pickOpen = null; refreshPreview(); });
   $("persClear").addEventListener("click", () => { persSel = []; store.set("persSel", persSel); renderPersonal(); refreshPreview(); });
 
   function refreshPreview() {
@@ -681,12 +725,16 @@
   const FIELDS = ["titulo", "lugar", "contenido", "personal", "encabezado"];
   function loadFields() {
     $("encabezado").value = store.get("encabezado2", DEF_HEADER);
-    iconMode.titulo = "auto"; iconMode.contenido = "auto";
+    iconMode.titulo = "none"; iconMode.lugar = "none"; iconMode.contenido = "none"; pickOpen = null;
     // Cada vez que se abre la app arranca limpia (igual que "Nuevo parte"):
     // sin fotos, sin título, sin lugar y sin contenido. El personal elegido se recuerda.
     ["titulo", "lugar", "contenido"].forEach(id => { $(id).value = ""; store.set(id, ""); });
     $("personal").value = store.get("personal", "");
     persSel = store.get("persSel", []).filter(n => PERSONAL_LIST.includes(n));
+    // Título y su ícono: se recuerdan en cada celular
+    $("persTitulo").checked = !!store.get("persTitulo", false);
+    const pi = store.get("persIcon", "none");
+    iconMode.pers = (pi === "none" || ICONOS_PERS.includes(pi)) ? pi : "none";
     renderPersonal();
     $("fecha").value = todayISO();
     ["gap", "margin", "border", "radius"].forEach(id => { const v = store.get("set_" + id, null); if (v !== null) $(id).value = v; });
