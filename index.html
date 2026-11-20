@@ -29,7 +29,7 @@
   .card h2{margin:0 0 10px;font-size:15px;color:var(--navy);display:flex;align-items:center;gap:8px}
   .step{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px}
   .canvas-wrap{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#fff}
-  canvas#cv{display:block;width:100%;height:auto;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+  canvas#cv{display:block;width:100%;height:auto;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
   .hint{font-size:12.5px;color:var(--muted);margin:8px 2px 0;line-height:1.35}
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   button,.btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;
@@ -118,7 +118,7 @@
     <h2><span class="step">1</span> Fotos <span class="counter" id="count">0 / 10</span></h2>
     <div class="bgpick" id="bgPick"></div>
     <div class="canvas-wrap"><canvas id="cv" width="1080" height="1440"></canvas></div>
-    <p class="hint" id="hint">Agregá de 1 a 10 fotos. Tocá una foto para seleccionarla y después arrastrala para encuadrar (con dos dedos hacés zoom).</p>
+    <p class="hint" id="hint">Agregá de 1 a 10 fotos. <b>Mantené presionada una foto y arrastrala</b> para acomodarla dentro de su cuadro. Con dos dedos (o con el zoom) la agrandás; si una foto no se mueve, agrandala un poco.</p>
 
     <div class="row tools">
       <label class="btn primary grow" for="file">＋ Agregar fotos</label>
@@ -203,7 +203,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 11 · 20/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 12 · 20/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -518,6 +518,9 @@
       const [a, b] = [...pts.values()];
       pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: photos[sel].zoom }; drag = null; return;
     }
+    if (e.pointerType === "mouse" && swapFrom < 0) {
+      const i = hit(pt); if (i >= 0 && i !== sel) { sel = i; updateUI(); }
+    }
     if (sel >= 0 && hit(pt) === sel && swapFrom < 0) {
       try { cv.setPointerCapture(e.pointerId); } catch (_) {}
       drag = { last: pt };
@@ -533,11 +536,7 @@
       photos[sel].zoom = z; $("zoom").value = z; draw(); return;
     }
     if (drag && sel >= 0) {
-      const p = photos[sel], r = inner(cells()[sel], settings()), g = geom(p, r);
-      const dx = pt.x - drag.last.x, dy = pt.y - drag.last.y; drag.last = pt;
-      if (g.ox > 0.5) p.px = clamp(p.px - 2 * dx / g.ox, -1, 1);
-      if (g.oy > 0.5) p.py = clamp(p.py - 2 * dy / g.oy, -1, 1);
-      draw();
+      panPhoto(sel, pt.x - drag.last.x, pt.y - drag.last.y); drag.last = pt;
     }
   });
   const end = e => {
@@ -559,6 +558,46 @@
       downAt = null;
     }
   };
+  // Mover una foto dentro de su cuadro (dx, dy en píxeles de la imagen final)
+  function panPhoto(i, dx, dy) {
+    const p = photos[i], c = cells()[i]; if (!p || !c) return;
+    const g = geom(p, inner(c, settings()));
+    if (g.ox > 0.5) p.px = clamp(p.px - 2 * dx / g.ox, -1, 1);
+    if (g.oy > 0.5) p.py = clamp(p.py - 2 * dy / g.oy, -1, 1);
+    draw();
+  }
+  // Celular: mantener presionada una foto (sin seleccionarla antes) y arrastrarla.
+  // Si el dedo se mueve enseguida, es un scroll normal de la página.
+  const LP_MS = 250;
+  let lp = null;
+  cv.addEventListener("touchstart", e => {
+    if (lp) { clearTimeout(lp.timer); lp = null; }
+    if (e.touches.length !== 1 || swapFrom >= 0) return;
+    const t = e.touches[0], pt = toCanvas(t), i = hit(pt);
+    if (i < 0 || i === sel) return; // la foto ya seleccionada se mueve con el arrastre normal
+    lp = { i, active: false, last: pt, sx: t.clientX, sy: t.clientY };
+    lp.timer = setTimeout(() => {
+      if (!lp) return;
+      lp.active = true; sel = lp.i;
+      try { if (navigator.vibrate) navigator.vibrate(15); } catch (_) {}
+      updateUI();
+    }, LP_MS);
+  }, { passive: true });
+  cv.addEventListener("touchmove", e => {
+    if (!lp) return;
+    const t = e.touches[0];
+    if (!lp.active) {
+      if (Math.hypot(t.clientX - lp.sx, t.clientY - lp.sy) > 10) { clearTimeout(lp.timer); lp = null; }
+      return;
+    }
+    if (e.cancelable) e.preventDefault();
+    const pt = toCanvas(t); panPhoto(lp.i, pt.x - lp.last.x, pt.y - lp.last.y); lp.last = pt;
+  }, { passive: false });
+  const lpEnd = () => { if (lp) { clearTimeout(lp.timer); lp = null; } };
+  cv.addEventListener("touchend", lpEnd);
+  cv.addEventListener("touchcancel", lpEnd);
+  cv.addEventListener("contextmenu", e => { if (hit(toCanvas(e)) >= 0) e.preventDefault(); });
+
   cv.addEventListener("pointerup", end);
   cv.addEventListener("pointercancel", end);
   cv.addEventListener("wheel", e => {
