@@ -51,6 +51,11 @@
   textarea{resize:vertical;min-height:110px;line-height:1.4}
   input:focus,textarea:focus{outline:2px solid #8fb2e8;border-color:#8fb2e8;background:#fff}
   .upper{text-transform:uppercase}
+  .perslist{display:grid;grid-template-columns:1fr;gap:6px}
+  @media (min-width:520px){.perslist{grid-template-columns:1fr 1fr}}
+  .perslist label{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd;font-size:14.5px;cursor:pointer;user-select:none}
+  .perslist input{width:20px;height:20px;accent-color:var(--navy);flex:none}
+  .perslist label.on{border-color:var(--navy);background:#e8eef8;font-weight:600}
   .bgpick{display:flex;gap:8px;margin-bottom:10px}
   .bgpick button{flex:1;padding:6px;gap:8px;justify-content:flex-start;min-height:52px;font-size:14px}
   .bgpick img{width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--line)}
@@ -108,7 +113,7 @@
   <section class="card">
     <h2><span class="step">1</span> Fotos <span class="counter" id="count">0 / 10</span></h2>
     <div class="bgpick" id="bgPick"></div>
-    <div class="canvas-wrap"><canvas id="cv" width="1580" height="1600"></canvas></div>
+    <div class="canvas-wrap"><canvas id="cv" width="1080" height="1920"></canvas></div>
     <p class="hint" id="hint">Agregá de 1 a 10 fotos. Tocá una foto para seleccionarla y después arrastrala para encuadrar (con dos dedos hacés zoom).</p>
 
     <div class="row tools">
@@ -160,8 +165,14 @@
     <label class="f" for="contenido">Contenido del parte <span class="req">*</span></label>
     <textarea id="contenido" rows="6" required placeholder="Se realiza la instalación de equipo base en oficina de guardia quedando en svc.&#10;Se retira xtl5000 fuera de svc..."></textarea>
 
-    <label class="f" for="personal">Personal interviniente <span class="opt">(opcional, uno por línea)</span></label>
-    <textarea id="personal" rows="3" style="min-height:80px" placeholder="Ej: Cabo 1° Pérez Juan&#10;Agente Gómez Luis"></textarea>
+    <label class="f">Personal interviniente <span class="opt">(opcional, tocá para elegir)</span></label>
+    <div class="perslist" id="persList"></div>
+    <div class="row" style="margin-top:6px;justify-content:space-between">
+      <span class="layoutinfo" id="persCount">Nadie seleccionado</span>
+      <button type="button" id="persClear" style="min-height:34px;padding:4px 10px;font-size:13px">Quitar todos</button>
+    </div>
+    <label class="f" for="personal">Otro personal <span class="opt">(opcional, uno por línea)</span></label>
+    <textarea id="personal" rows="2" style="min-height:60px" placeholder="Si no está en la lista, escribilo acá"></textarea>
 
     <details>
       <summary>Encabezado fijo y formato</summary>
@@ -186,6 +197,8 @@
     </div>
   </section>
 </main>
+
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 6 · 19/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -220,27 +233,41 @@
   // ---------- Constantes ----------
   // Fondos disponibles (mismo tamaño y misma zona libre)
   const BACKGROUNDS = [
-    { id: "claro", name: "Fondo claro", src: "fondo.jpg", dark: false },
-    { id: "oscuro", name: "Fondo oscuro", src: "fondo-oscuro.jpg", dark: true }
+    { id: "claro", name: "Fondo blanco", src: "fondo.jpg", dark: false },
+    { id: "oscuro", name: "Fondo negro", src: "fondo-oscuro.jpg", dark: true }
   ];
-  const W = 1580, H = 1600;
+  const W = 1080, H = 1920;  // formato vertical 9:16
   // Zona libre dentro del marco (entre las torres y debajo del título)
-  const ZONE = { x: 176, y: 650, w: 1230, h: 918 };
+  const ZONE = { x: 162, y: 492, w: 756, h: 1340 };
   const MAX_PHOTOS = 10;
   const LAYOUTS = {
     1: ["R1"],
-    2: ["R2", "R1-1"],
-    3: ["R3", "R1-2", "R2-1", "C1-2", "C2-1", "R1-1-1"],
-    4: ["R2-2", "C1-3", "R1-3", "R3-1", "R4", "C3-1"],
-    5: ["R2-3", "R3-2", "C1-4", "R1-4", "C2-3"],
-    6: ["R3-3", "R2-2-2", "R2-4", "R4-2", "C1-2-3"],
-    7: ["R3-4", "R4-3", "R2-3-2", "R2-2-3", "R3-2-2"],
-    8: ["R4-4", "R3-2-3", "R2-3-3", "R2-2-2-2", "R3-3-2"],
-    9: ["R3-3-3", "R4-5", "R5-4", "R2-3-4"],
-    10: ["R5-5", "R3-4-3", "R2-3-3-2", "R4-3-3", "R3-3-4", "R2-2-2-2-2"]
+    2: ["R1-1", "R2"],
+    3: ["R1-1-1", "R1-2", "R2-1", "C1-2", "R3"],
+    4: ["R2-2", "R1-1-1-1", "R1-2-1", "R1-3", "C1-3"],
+    5: ["R1-2-2", "R2-1-2", "R2-2-1", "R1-1-1-1-1", "C2-3"],
+    6: ["R2-2-2", "R3-3", "R1-2-2-1", "R2-1-1-2"],
+    7: ["R1-2-2-2", "R2-2-2-1", "R2-3-2", "R3-1-3"],
+    8: ["R2-2-2-2", "R2-3-3", "R3-2-3", "R1-2-2-2-1"],
+    9: ["R3-3-3", "R1-2-2-2-2", "R2-2-3-2", "R2-3-2-2"],
+    10: ["R2-2-2-2-2", "R3-4-3", "R2-3-3-2", "R3-3-4"]
   };
   const DEF_HEADER = "D.G.T.I.A.E. \nDIR. TEC. Y TELEC.\nDIV. RADIO";
   const DEF_PERS_TITLE = "PERSONAL INTERVINIENTE:";
+  const PERSONAL_LIST = [
+    "Of. Ppal. Gervasoni Carlos",
+    "Sub Of Ppal Fuentes Faustino",
+    "Sub Of Ppal Roblero José",
+    "Sgto 1° Ponce Pablo",
+    "Cabo 1° Tec Britos José",
+    "Agte Apaz Santiago",
+    "Of. Ppal. Ramos Ada",
+    "Sub Of Ppal Cabral Rubén",
+    "Cabo Kiefer Juan",
+    "Cabo 1° (T) Aliaga Magdalena",
+    "Pers. Civil Arregui Alexis Martín",
+    "Pers. Civil Bini Deborah Sofía"
+  ];
 
   // ---------- Estado ----------
   const $ = id => document.getElementById(id);
@@ -329,9 +356,9 @@
     if (!photos.length && !forExport) {
       c.save(); c.setLineDash([22, 16]); c.lineWidth = 5; c.strokeStyle = bg.dark ? "rgba(255,255,255,.4)" : "rgba(18,48,90,.35)";
       rr(c, ZONE.x + 20, ZONE.y + 20, ZONE.w - 40, ZONE.h - 40, 30); c.stroke();
-      c.fillStyle = bg.dark ? "rgba(255,255,255,.75)" : "rgba(18,48,90,.55)"; c.font = "600 52px system-ui, sans-serif"; c.textAlign = "center";
+      c.fillStyle = bg.dark ? "rgba(255,255,255,.75)" : "rgba(18,48,90,.55)"; c.font = "600 46px system-ui, sans-serif"; c.textAlign = "center";
       c.fillText("Tocá “＋ Agregar fotos”", ZONE.x + ZONE.w / 2, ZONE.y + ZONE.h / 2);
-      c.font = "400 36px system-ui, sans-serif";
+      c.font = "400 32px system-ui, sans-serif";
       c.fillText("de 1 a 10 fotos", ZONE.x + ZONE.w / 2, ZONE.y + ZONE.h / 2 + 60);
       c.restore();
     }
@@ -532,7 +559,7 @@
     const titulo = $("titulo").value.trim().toUpperCase();
     const lugar = $("lugar").value.trim().toUpperCase();
     const cont = $("contenido").value.trim();
-    const pers = $("personal").value.split("\n").map(s => s.trim()).filter(Boolean);
+    const pers = selectedPersonal().concat($("personal").value.split("\n").map(s => s.trim()).filter(Boolean));
     let out = header + "\n\n\n" + bold("FECHA: " + fechaCorta());
     if (titulo) out += "\n\n" + bold(titulo);
     if (lugar) out += "\n\n" + bold(lugar);
@@ -541,6 +568,30 @@
     return out;
   }
   // Vista previa como la muestra WhatsApp (los *asteriscos* se ven en negrita)
+  // Personal seleccionable (se recuerda en cada celular)
+  let persSel = [];
+  function selectedPersonal() { return PERSONAL_LIST.filter(n => persSel.includes(n)); }
+  function renderPersonal() {
+    $("persList").innerHTML = "";
+    PERSONAL_LIST.forEach(n => {
+      const lab = document.createElement("label");
+      const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = persSel.includes(n);
+      lab.classList.toggle("on", cb.checked);
+      cb.addEventListener("change", () => {
+        persSel = cb.checked ? persSel.concat(n) : persSel.filter(x => x !== n);
+        lab.classList.toggle("on", cb.checked); store.set("persSel", persSel); updatePersCount(); refreshPreview();
+      });
+      lab.appendChild(cb); lab.appendChild(document.createTextNode(n));
+      $("persList").appendChild(lab);
+    });
+    updatePersCount();
+  }
+  function updatePersCount() {
+    const k = selectedPersonal().length;
+    $("persCount").textContent = k ? (k === 1 ? "1 seleccionado" : k + " seleccionados") : "Nadie seleccionado";
+  }
+  $("persClear").addEventListener("click", () => { persSel = []; store.set("persSel", persSel); renderPersonal(); refreshPreview(); });
+
   function refreshPreview() {
     const esc = buildMessage().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     $("preview").innerHTML = esc.replace(/\*([^*\n]+)\*/g, "<b>$1</b>");
@@ -554,6 +605,8 @@
     $("lugar").value = store.get("lugar", "");
     $("contenido").value = store.get("contenido", "");
     $("personal").value = store.get("personal", "");
+    persSel = store.get("persSel", []).filter(n => PERSONAL_LIST.includes(n));
+    renderPersonal();
     $("fecha").value = todayISO();
     ["gap", "margin", "border", "radius"].forEach(id => { const v = store.get("set_" + id, null); if (v !== null) $(id).value = v; });
     const sh = store.get("set_shadow", null); if (sh !== null) $("shadow").checked = sh;
@@ -664,7 +717,19 @@
   const IS_PWA_BUILD = true;
   if (IS_PWA_BUILD) {
     if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+      // Actualización automática: busca versión nueva al abrir/volver a la app
+      const hadController = !!navigator.serviceWorker.controller;
+      let reloading = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (!hadController || reloading) return;
+        if (photos.length) { toast("Hay una versión nueva: se aplica la próxima vez que abras la app", 4000); return; }
+        reloading = true; location.reload();
+      });
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(reg => {
+          document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") reg.update().catch(() => {}); });
+        }).catch(() => {});
+      });
     }
     const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
     const dismissed = store.get("installDismissed", 0) > Date.now() - 7 * 864e5;
