@@ -113,7 +113,7 @@
   <section class="card">
     <h2><span class="step">1</span> Fotos <span class="counter" id="count">0 / 10</span></h2>
     <div class="bgpick" id="bgPick"></div>
-    <div class="canvas-wrap"><canvas id="cv" width="1080" height="1920"></canvas></div>
+    <div class="canvas-wrap"><canvas id="cv" width="1080" height="1440"></canvas></div>
     <p class="hint" id="hint">Agregá de 1 a 10 fotos. Tocá una foto para seleccionarla y después arrastrala para encuadrar (con dos dedos hacés zoom).</p>
 
     <div class="row tools">
@@ -198,7 +198,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 7 · 19/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 8 · 20/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -233,12 +233,12 @@
   // ---------- Constantes ----------
   // Fondos disponibles (mismo tamaño y misma zona libre)
   const BACKGROUNDS = [
-    { id: "claro", name: "Fondo blanco", src: "fondo%20nuevo%20blanco.jpeg", dark: false },
-    { id: "oscuro", name: "Fondo negro", src: "fondo%20nuevo%20negro.PNG", dark: true }
+    { id: "claro", name: "Fondo blanco", src: "parte-radio-blanco.jpg", dark: false },
+    { id: "oscuro", name: "Fondo negro", src: "parte-radio.jpg", dark: true }
   ];
-  const W = 1080, H = 1920;  // formato vertical 9:16
+  const W = 1080, H = 1440;  // formato vertical 3:4
   // Zona libre dentro del marco (entre las torres y debajo del título)
-  const ZONE = { x: 162, y: 492, w: 756, h: 1340 };
+  const ZONE = { x: 132, y: 500, w: 816, h: 920 };
   const MAX_PHOTOS = 10;
   const LAYOUTS = {
     1: ["R1"],
@@ -560,7 +560,7 @@
     const lugar = $("lugar").value.trim().toUpperCase();
     const cont = $("contenido").value.trim();
     const pers = selectedPersonal().concat($("personal").value.split("\n").map(s => s.trim()).filter(Boolean));
-    let out = header + "\n\n\n" + bold("FECHA: " + fechaCorta());
+    let out = header + "\n\n" + bold("FECHA: " + fechaCorta());
     if (titulo) out += "\n\n" + bold(titulo);
     if (lugar) out += "\n\n" + bold(lugar);
     if (cont) out += "\n\n" + cont;
