@@ -1,6 +1,6 @@
 // Service worker: guarda la app para que abra rápido y sin señal
-const CACHE = "parte-radio-v8";
-const FILES = ["./", "index.html", "parte-radio-blanco.jpg", "parte-radio.jpg", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png"];
+const CACHE = "parte-radio-v9";
+const FILES = ["./", "index.html", "parte-radio-blanco.jpg", "parte-radio.jpg", "manifest.webmanifest", "escudo-192.png", "escudo-512.png", "escudo-maskable-512.png", "escudo-apple-180.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES))); self.skipWaiting(); });
 self.addEventListener("activate", e => {
   e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))));

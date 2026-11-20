@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Parte de Novedades · Div. Radio</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="escudo-192.png">
+<link rel="apple-touch-icon" href="escudo-apple-180.png">
 <meta name="apple-mobile-web-app-title" content="Parte Radio">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
@@ -198,7 +198,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 8 · 20/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 9 · 20/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -601,9 +601,9 @@
   function loadFields() {
     $("encabezado").value = store.get("encabezado", DEF_HEADER);
     $("personalTitulo").value = store.get("personalTitulo", DEF_PERS_TITLE);
-    $("titulo").value = store.get("titulo", "");
-    $("lugar").value = store.get("lugar", "");
-    $("contenido").value = store.get("contenido", "");
+    // Cada vez que se abre la app arranca limpia (igual que "Nuevo parte"):
+    // sin fotos, sin título, sin lugar y sin contenido. El personal elegido se recuerda.
+    ["titulo", "lugar", "contenido"].forEach(id => { $(id).value = ""; store.set(id, ""); });
     $("personal").value = store.get("personal", "");
     persSel = store.get("persSel", []).filter(n => PERSONAL_LIST.includes(n));
     renderPersonal();
@@ -722,7 +722,8 @@
       let reloading = false;
       navigator.serviceWorker.addEventListener("controllerchange", () => {
         if (!hadController || reloading) return;
-        if (photos.length) { toast("Hay una versión nueva: se aplica la próxima vez que abras la app", 4000); return; }
+        const enUso = photos.length || ["titulo", "lugar", "contenido"].some(id => $(id).value.trim());
+        if (enUso) { toast("Hay una versión nueva: se aplica la próxima vez que abras la app", 4000); return; }
         reloading = true; location.reload();
       });
       window.addEventListener("load", () => {
