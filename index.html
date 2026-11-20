@@ -163,6 +163,7 @@
 
     <label class="f" for="fecha">Fecha <span class="req">*</span></label>
     <input type="date" id="fecha" required>
+    <div class="iconpick" id="iconFecha"></div>
 
     <label class="f" for="titulo">Título del parte <span class="opt">(opcional)</span></label>
     <input type="text" id="titulo" class="upper" placeholder="Ej: INSTALACIÓN DE EQUIPO BASE" autocomplete="off">
@@ -211,7 +212,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 14 · 20/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 15 · 20/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -634,8 +635,8 @@
     const lugar = $("lugar").value.trim().toUpperCase();
     const cont = $("contenido").value.trim();
     const pers = selectedPersonal().concat($("personal").value.split("\n").map(s => s.trim()).filter(Boolean));
-    let out = header + "\n\n" + EMO.fecha + " " + bold(fechaLarga());
     const pre = id => { const ic = iconFor(id); return ic ? ic + " " : ""; };
+    let out = header + "\n\n" + pre("fecha") + bold(fechaLarga());
     if (titulo) out += "\n\n" + pre("titulo") + bold(titulo);
     if (lugar) out += "\n\n" + pre("lugar") + bold(lugar);
     if (cont) out += "\n\n" + pre("contenido") + cont;
@@ -650,7 +651,8 @@
   const ICONOS = ["📌","🎤","🚔","🏢","📍","✅","🛑","⚪","🎙️","🪛","🔧","🛠️","⚒️","🔩","⚙️","🎶",
                   "🔵","🟢","🟠","🟡","🔹","🔷","▫️","▪️","🟥","🟨","🟩","🟦","⬜","🚓","🚨","⛽"];
   const ICONOS_PERS = ["👮‍♀️", "👮🏼‍♂️", "👮🏽‍♂️", "👮🏽‍♀️", "👮‍♂️"];
-  const iconMode = { titulo: "none", lugar: "none", contenido: "none", pers: "none" };  // por defecto: sin ícono
+  const ICONOS_FECHA = ["📅", "📆", "🗓️"];
+  const iconMode = { fecha: "📅", titulo: "none", lugar: "none", contenido: "none", pers: "none" };  // por defecto: sin ícono
   let pickOpen = null;
   function autoIcon(id) {
     if (id === "lugar") return RX_DEP.test($("lugar").value) ? EMO.dep : EMO.lugar;
@@ -662,7 +664,7 @@
   }
   function renderIconPicks() {
     // [campo, caja, ¿tiene Auto?, íconos disponibles]
-    [["titulo", "iconTitulo", true, ICONOS], ["lugar", "iconLugar", true, ICONOS], ["contenido", "iconContenido", true, ICONOS],
+    [["fecha", "iconFecha", false, ICONOS_FECHA], ["titulo", "iconTitulo", true, ICONOS], ["lugar", "iconLugar", true, ICONOS], ["contenido", "iconContenido", true, ICONOS],
      ["pers", "iconPers", false, ICONOS_PERS]].forEach(([id, box, hasAuto, list]) => {
       const el = $(box);
       if (id === "pers") el.style.display = $("persTitulo").checked ? "" : "none";
@@ -680,6 +682,7 @@
         b.addEventListener("click", () => {
           iconMode[id] = val; pickOpen = null;
           if (id === "pers") store.set("persIcon", val);
+          if (id === "fecha") store.set("fechaIcon", val);
           renderIconPicks(); refreshPreview();
         });
         grid.appendChild(b);
@@ -733,6 +736,9 @@
     persSel = store.get("persSel", []).filter(n => PERSONAL_LIST.includes(n));
     // Título y su ícono: se recuerdan en cada celular
     $("persTitulo").checked = !!store.get("persTitulo", false);
+    // Ícono de la fecha: se recuerda en cada celular (📅 o sin ícono para un parte formal)
+    const fi = store.get("fechaIcon", "📅");
+    iconMode.fecha = (fi === "none" || ICONOS_FECHA.includes(fi)) ? fi : "📅";
     const pi = store.get("persIcon", "none");
     iconMode.pers = (pi === "none" || ICONOS_PERS.includes(pi)) ? pi : "none";
     renderPersonal();
