@@ -51,6 +51,10 @@
   textarea{resize:vertical;min-height:110px;line-height:1.4}
   input:focus,textarea:focus{outline:2px solid #8fb2e8;border-color:#8fb2e8;background:#fff}
   .upper{text-transform:uppercase}
+  .iconpick{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center}
+  .iconpick .lbl{font-size:12px;color:var(--muted);margin-right:2px}
+  .iconpick button{min-height:34px;padding:4px 10px;font-size:15px;font-weight:600}
+  .iconpick button.on{border:2px solid var(--navy);background:#e8eef8;color:var(--navy)}
   .perslist{display:grid;grid-template-columns:1fr;gap:6px}
   @media (min-width:520px){.perslist{grid-template-columns:1fr 1fr}}
   .perslist label{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd;font-size:14.5px;cursor:pointer;user-select:none}
@@ -157,6 +161,7 @@
 
     <label class="f" for="titulo">Título del parte <span class="opt">(opcional)</span></label>
     <input type="text" id="titulo" class="upper" placeholder="Ej: INSTALACIÓN DE EQUIPO BASE" autocomplete="off">
+    <div class="iconpick" id="iconTitulo"></div>
 
     <label class="f" for="lugar">Lugar / dependencia <span class="opt">(opcional)</span></label>
     <input type="text" id="lugar" class="upper" list="lugares" placeholder="Ej: COMISARIA 4TA" autocomplete="off">
@@ -164,6 +169,7 @@
 
     <label class="f" for="contenido">Contenido del parte <span class="req">*</span></label>
     <textarea id="contenido" rows="6" required placeholder="Se realiza la instalación de equipo base en oficina de guardia quedando en svc.&#10;Se retira xtl5000 fuera de svc..."></textarea>
+    <div class="iconpick" id="iconContenido"></div>
 
     <label class="f">Personal interviniente <span class="opt">(opcional, tocá para elegir)</span></label>
     <div class="perslist" id="persList"></div>
@@ -178,9 +184,8 @@
       <summary>Encabezado fijo y formato</summary>
       <label class="f" for="encabezado">Encabezado (siempre igual)</label>
       <textarea id="encabezado" rows="3" style="min-height:84px"></textarea>
-      <label class="f" for="personalTitulo">Título de la sección de personal</label>
-      <input type="text" id="personalTitulo" class="upper">
-      <p class="hint">En WhatsApp todo sale en <b>negrita</b> (con *asteriscos*), salvo el contenido del parte.</p>
+      <p class="hint">En WhatsApp todo sale en <b>negrita</b> (con *asteriscos*), salvo el contenido del parte.<br>
+      Íconos automáticos: 🎤 audio · 🚔 móvil (no los Beta 1, 2, 6, 7, 8 y 9, que son nuestros) · 🏢 dependencia policial · 📌 todo lo demás.</p>
     </details>
   </section>
 
@@ -198,7 +203,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 9 · 20/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 10 · 20/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -252,8 +257,24 @@
     9: ["R3-3-3", "R1-2-2-2-2", "R2-2-3-2", "R2-3-2-2"],
     10: ["R2-2-2-2-2", "R3-4-3", "R2-3-3-2", "R3-3-4"]
   };
-  const DEF_HEADER = "D.G.T.I.A.E. \nDIR. TEC. Y TELEC.\nDIV. RADIO";
-  const DEF_PERS_TITLE = "PERSONAL INTERVINIENTE:";
+  const DEF_HEADER = "D.G.T.I.A.E.\nDIR. DE TEC. Y TELEC.\nDIV. RADIO";
+  const EMO = { pin: "📌", audio: "🎤", movil: "🚔", dep: "🏢", fecha: "📅", lugar: "📍", punto: "▪️" };
+
+  // Ícono automático según el tema del texto (prioridad: audio > móvil > dependencia > pin)
+  const W_ = (body) => new RegExp("(?<![\\p{L}\\d])(?:" + body + ")(?![\\p{L}\\d])", "iu");
+  const RX_AUDIO = W_("audio|sonido|parlantes?|micr[oó]fonos?|amplificador(?:es)?|meg[aá]fonos?|bocinas?");
+  const RX_MOVIL = W_("m[oó]vil(?:es)?|patrulleros?|veh[ií]culos?|camionetas?|motos?|motocicletas?");
+  // Móviles propios de la División: Beta 1, 2, 6, 7, 8 y 9 (también "B8", "beta8", "móvil beta 8")
+  const RX_PROPIOS = new RegExp("(?<![\\p{L}\\d])(?:m[oó]vil(?:es)?\\s+)?(?:beta|b)\\s*-?\\s*[126789](?![\\p{L}\\d])", "giu");
+  const RX_DEP = W_("comisar[ií]as?|subcomisar[ií]as?|sub\\s?cr[ií]a\\.?|cr[ií]a\\.?|secci[oó]n(?:es)?|divisi[oó]n(?:es)?|departamentos?|dpto\\.?|direcci[oó]n(?:es)?|dependencias?|destacamentos?|jefaturas?|unidad(?:es)? regional(?:es)?|u\\.?r\\.?\\s*\\d+|distritos?|guardia");
+  function detectIcon(text) {
+    const t = (text || "").normalize("NFC");
+    if (!t.trim()) return EMO.pin;
+    if (RX_AUDIO.test(t)) return EMO.audio;
+    if (RX_MOVIL.test(t.replace(RX_PROPIOS, " "))) return EMO.movil;
+    if (RX_DEP.test(t)) return EMO.dep;
+    return EMO.pin;
+  }
   const PERSONAL_LIST = [
     "Of. Ppal. Gervasoni Carlos",
     "Sub Of Ppal Fuentes Faustino",
@@ -548,24 +569,43 @@
   // ---------- Mensaje ----------
   const pad = n => String(n).padStart(2, "0");
   function todayISO() { const d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function fechaLarga() {
+    const v = $("fecha").value; if (!v) return "";
+    const [y, m, d] = v.split("-"); return d + "/" + m + "/" + y;
+  }
   function fechaCorta() {
     const v = $("fecha").value; if (!v) return "";
     const [y, m, d] = v.split("-"); return d + "/" + m + "/" + y.slice(2);
   }
   function buildMessage() {
-    // Negrita de WhatsApp en todo menos el contenido: *texto* en cada línea
+    // Formato: encabezado en negrita (un bloque), 📅 fecha, ícono + título, 📍 lugar, ícono + contenido, ▪️ personal
     const bold = s => s.trim() ? "*" + s.trim().replace(/\*/g, "") + "*" : "";
-    const header = ($("encabezado").value || DEF_HEADER).split("\n").map(l => bold(l)).join("\n");
+    const headLines = ($("encabezado").value || DEF_HEADER).split("\n").map(l => l.trim().replace(/\*/g, "")).filter(Boolean);
+    const header = "*" + headLines.join("\n") + "*";
     const titulo = $("titulo").value.trim().toUpperCase();
     const lugar = $("lugar").value.trim().toUpperCase();
     const cont = $("contenido").value.trim();
     const pers = selectedPersonal().concat($("personal").value.split("\n").map(s => s.trim()).filter(Boolean));
-    let out = header + "\n\n" + bold("FECHA: " + fechaCorta());
-    if (titulo) out += "\n\n" + bold(titulo);
-    if (lugar) out += "\n\n" + bold(lugar);
-    if (cont) out += "\n\n" + cont;
-    if (pers.length) out += "\n\n" + bold(($("personalTitulo").value.trim().toUpperCase()) || DEF_PERS_TITLE) + "\n" + pers.map(bold).join("\n");
+    let out = header + "\n\n" + EMO.fecha + " " + bold(fechaLarga());
+    if (titulo) out += "\n\n" + iconFor("titulo") + " " + bold(titulo);
+    if (lugar) out += "\n\n" + EMO.lugar + " " + bold(lugar);
+    if (cont) out += "\n\n" + iconFor("contenido") + " " + cont;
+    if (pers.length) out += "\n\n" + pers.map(n => EMO.punto + " " + bold(/[.!]$/.test(n) ? n : n + ".")).join("\n");
     return out;
+  }
+  // Ícono elegido a mano o automático
+  const iconMode = { titulo: "auto", contenido: "auto" };
+  function iconFor(id) { return iconMode[id] === "auto" ? detectIcon($(id).value) : iconMode[id]; }
+  function renderIconPicks() {
+    [["titulo", "iconTitulo"], ["contenido", "iconContenido"]].forEach(([id, box]) => {
+      const el = $(box); el.innerHTML = "<span class=\"lbl\">Ícono:</span>";
+      [["auto", "Auto " + detectIcon($(id).value)], [EMO.pin, EMO.pin], [EMO.audio, EMO.audio], [EMO.movil, EMO.movil], [EMO.dep, EMO.dep]].forEach(([val, txt]) => {
+        const b = document.createElement("button"); b.type = "button"; b.textContent = txt;
+        b.className = iconMode[id] === val ? "on" : "";
+        b.addEventListener("click", () => { iconMode[id] = val; renderIconPicks(); refreshPreview(); });
+        el.appendChild(b);
+      });
+    });
   }
   // Vista previa como la muestra WhatsApp (los *asteriscos* se ven en negrita)
   // Personal seleccionable (se recuerda en cada celular)
@@ -594,13 +634,14 @@
 
   function refreshPreview() {
     const esc = buildMessage().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    $("preview").innerHTML = esc.replace(/\*([^*\n]+)\*/g, "<b>$1</b>");
+    $("preview").innerHTML = esc.replace(/\*([^*]+)\*/g, "<b>$1</b>");
+    renderIconPicks();
   }
 
-  const FIELDS = ["titulo", "lugar", "contenido", "personal", "encabezado", "personalTitulo"];
+  const FIELDS = ["titulo", "lugar", "contenido", "personal", "encabezado"];
   function loadFields() {
-    $("encabezado").value = store.get("encabezado", DEF_HEADER);
-    $("personalTitulo").value = store.get("personalTitulo", DEF_PERS_TITLE);
+    $("encabezado").value = store.get("encabezado2", DEF_HEADER);
+    iconMode.titulo = "auto"; iconMode.contenido = "auto";
     // Cada vez que se abre la app arranca limpia (igual que "Nuevo parte"):
     // sin fotos, sin título, sin lugar y sin contenido. El personal elegido se recuerda.
     ["titulo", "lugar", "contenido"].forEach(id => { $(id).value = ""; store.set(id, ""); });
@@ -613,7 +654,7 @@
     const lugares = store.get("lugares", []);
     $("lugares").innerHTML = lugares.map(l => "<option value=\"" + l.replace(/"/g, "&quot;") + "\">").join("");
   }
-  FIELDS.forEach(id => $(id).addEventListener("input", () => { store.set(id, $(id).value); $(id).classList.remove("invalid"); refreshPreview(); }));
+  FIELDS.forEach(id => $(id).addEventListener("input", () => { store.set(id === "encabezado" ? "encabezado2" : id, $(id).value); $(id).classList.remove("invalid"); refreshPreview(); }));
   $("fecha").addEventListener("input", () => { $("fecha").classList.remove("invalid"); refreshPreview(); });
 
   // Campos obligatorios: fecha y contenido (y al menos una foto para la imagen)
