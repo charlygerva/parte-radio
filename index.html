@@ -203,7 +203,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 10 · 20/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 11 · 20/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -581,7 +581,8 @@
     // Formato: encabezado en negrita (un bloque), 📅 fecha, ícono + título, 📍 lugar, ícono + contenido, ▪️ personal
     const bold = s => s.trim() ? "*" + s.trim().replace(/\*/g, "") + "*" : "";
     const headLines = ($("encabezado").value || DEF_HEADER).split("\n").map(l => l.trim().replace(/\*/g, "")).filter(Boolean);
-    const header = "*" + headLines.join("\n") + "*";
+    // WhatsApp no aplica negrita a través de saltos de línea: cada renglón va con sus propios *asteriscos*
+    const header = headLines.map(l => "*" + l + "*").join("\n");
     const titulo = $("titulo").value.trim().toUpperCase();
     const lugar = $("lugar").value.trim().toUpperCase();
     const cont = $("contenido").value.trim();
