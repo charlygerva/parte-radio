@@ -65,7 +65,11 @@
   .perslist label{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd;font-size:14.5px;cursor:pointer;user-select:none}
   .perslist input{width:20px;height:20px;accent-color:var(--navy);flex:none}
   .perslist label.on{border-color:var(--navy);background:#e8eef8;font-weight:600}
-  .bgpick{display:flex;gap:8px;margin-bottom:10px}
+  .bgpick{display:flex;gap:8px;margin-bottom:8px}
+  .divpick{display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap}
+  .divpick .lbl{font-size:12.5px;color:var(--muted);font-weight:700;margin-right:2px}
+  .divpick button{flex:1;min-height:40px;padding:6px 8px;font-size:13.5px;line-height:1.15}
+  .divpick button.on{border:2px solid var(--navy);background:#e8eef8;color:var(--navy)}
   .bgpick button{flex:1;padding:6px;gap:8px;justify-content:flex-start;min-height:52px;font-size:14px}
   .bgpick img{width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--line)}
   .bgpick button.on{border:2px solid var(--navy);background:#e8eef8;color:var(--navy)}
@@ -122,6 +126,7 @@
   <section class="card">
     <h2><span class="step">1</span> Fotos <span class="counter" id="count">0 / 10</span></h2>
     <div class="bgpick" id="bgPick"></div>
+    <div class="divpick" id="divPick"><span class="lbl">División:</span></div>
     <div class="canvas-wrap"><canvas id="cv" width="1080" height="1440"></canvas></div>
     <p class="hint" id="hint">Agregá de 1 a 10 fotos. <b>Mantené presionada una foto y arrastrala</b> para acomodarla dentro de su cuadro. Con dos dedos (o con el zoom) la agrandás; si una foto no se mueve, agrandala un poco.</p>
 
@@ -212,7 +217,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 15 · 20/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 16 · 21/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -246,9 +251,15 @@
   "use strict";
   // ---------- Constantes ----------
   // Fondos disponibles (mismo tamaño y misma zona libre)
+  // Fondo: color (blanco/negro) × división. Todos con el mismo tamaño y la misma zona libre.
   const BACKGROUNDS = [
-    { id: "claro", name: "Fondo blanco", src: "parte-radio-blanco.jpg", dark: false },
-    { id: "oscuro", name: "Fondo negro", src: "parte-radio.jpg", dark: true }
+    { id: "claro", name: "Fondo blanco", dark: false },
+    { id: "oscuro", name: "Fondo negro", dark: true }
+  ];
+  const DIVISIONES = [
+    { id: "radio", name: "Radio", abrev: "DIV. RADIO", src: { claro: "parte-radio-blanco.jpg", oscuro: "parte-radio.jpg" } },
+    { id: "troncalizado", name: "Sitio Troncalizado", abrev: "DIV. SITIO TRONCALIZADO", src: { claro: "parte-troncalizado-blanco.jpg", oscuro: "parte-troncalizado.jpg" } },
+    { id: "telefonia", name: "Telefonía", abrev: "DIV. TELEFONÍA", src: { claro: "parte-telefonia-blanco.jpg", oscuro: "parte-telefonia.jpg" } }
   ];
   const W = 1080, H = 1440;  // formato vertical 3:4
   // Zona libre dentro del marco (entre las torres y debajo del título)
@@ -303,8 +314,9 @@
   const $ = id => document.getElementById(id);
   const cv = $("cv"), ctx = cv.getContext("2d");
   const BG_IMGS = {};
-  let bgId = "claro";
-  const curBG = () => BACKGROUNDS.find(b => b.id === bgId) || BACKGROUNDS[0];
+  let bgId = "claro", divId = "radio";
+  const curDiv = () => DIVISIONES.find(d => d.id === divId) || DIVISIONES[0];
+  const curBG = () => { const b = BACKGROUNDS.find(x => x.id === bgId) || BACKGROUNDS[0]; return Object.assign({}, b, { src: curDiv().src[b.id] }); };
   let photos = [];          // {src, w, h, zoom, px, py}
   let sel = -1;             // índice seleccionado
   let swapFrom = -1;        // modo intercambiar
@@ -380,7 +392,7 @@
   // ---------- Dibujo ----------
   function render(c, forExport) {
     c.clearRect(0, 0, W, H);
-    const bg = curBG(), BG = BG_IMGS[bg.id];
+    const bg = curBG(), BG = BG_IMGS[bg.src];
     if (BG && BG.complete && BG.naturalWidth) c.drawImage(BG, 0, 0, W, H);
     const s = settings(), cs = cells();
     if (!photos.length && !forExport) {
@@ -628,7 +640,9 @@
   function buildMessage() {
     // Formato: encabezado en negrita (un bloque), 📅 fecha, ícono + título, 📍 lugar, ícono + contenido, ▪️ personal
     const bold = s => s.trim() ? "*" + s.trim().replace(/\*/g, "") + "*" : "";
-    const headLines = ($("encabezado").value || DEF_HEADER).split("\n").map(l => l.trim().replace(/\*/g, "")).filter(Boolean);
+    // El renglón "DIV. ..." del encabezado sigue a la división elegida en el editor
+    const headLines = ($("encabezado").value || DEF_HEADER).split("\n").map(l => l.trim().replace(/\*/g, "")).filter(Boolean)
+      .map(l => /^DIV(\.|\s)/i.test(l) ? curDiv().abrev : l);
     // WhatsApp no aplica negrita a través de saltos de línea: cada renglón va con sus propios *asteriscos*
     const header = headLines.map(l => "*" + l + "*").join("\n");
     const titulo = $("titulo").value.trim().toUpperCase();
@@ -892,19 +906,33 @@
   loadFields(); refreshPreview();
   bgId = store.get("fondo", "claro");
   if (!BACKGROUNDS.some(b => b.id === bgId)) bgId = "claro";
+  divId = store.get("division", "radio");
+  if (!DIVISIONES.some(d => d.id === divId)) divId = "radio";
+  DIVISIONES.forEach(dv => BACKGROUNDS.forEach(b => {
+    const src = dv.src[b.id];
+    const img = new Image(); img.onload = () => draw(); img.src = src; BG_IMGS[src] = img;
+  }));
+  const markPickers = () => {
+    document.querySelectorAll("#bgPick button").forEach(x => {
+      x.classList.toggle("on", x.dataset.id === bgId);
+      x.querySelector("img").src = curDiv().src[x.dataset.id];
+    });
+    document.querySelectorAll("#divPick button").forEach(x => x.classList.toggle("on", x.dataset.id === divId));
+  };
   BACKGROUNDS.forEach(b => {
-    const img = new Image(); img.onload = () => draw(); img.src = b.src; BG_IMGS[b.id] = img;
     const btn = document.createElement("button");
     btn.type = "button"; btn.dataset.id = b.id;
-    btn.innerHTML = "<img alt=\"\" src=\"" + b.src + "\"><span>" + b.name + "</span>";
-    btn.addEventListener("click", () => {
-      bgId = b.id; store.set("fondo", bgId);
-      document.querySelectorAll("#bgPick button").forEach(x => x.classList.toggle("on", x.dataset.id === bgId));
-      draw();
-    });
+    btn.innerHTML = "<img alt=\"\" src=\"" + curDiv().src[b.id] + "\"><span>" + b.name + "</span>";
+    btn.addEventListener("click", () => { bgId = b.id; store.set("fondo", bgId); markPickers(); draw(); });
     $("bgPick").appendChild(btn);
   });
-  document.querySelectorAll("#bgPick button").forEach(x => x.classList.toggle("on", x.dataset.id === bgId));
+  DIVISIONES.forEach(dv => {
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.dataset.id = dv.id; btn.textContent = dv.name;
+    btn.addEventListener("click", () => { divId = dv.id; store.set("division", divId); markPickers(); draw(); refreshPreview(); });
+    $("divPick").appendChild(btn);
+  });
+  markPickers(); refreshPreview();
   updateUI();
 })();
 </script>
