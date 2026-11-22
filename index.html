@@ -145,6 +145,13 @@
   .perslist label.on.d-troncalizado input{accent-color:#facc15}
   .perslist label.on.d-depto{background:rgba(255,43,214,.24) !important;border:1px solid #ff4fe0 !important;color:#fff;box-shadow:0 0 14px rgba(255,43,214,.55)}
   .perslist label.on.d-depto input{accent-color:#ff4fe0}
+  /* Otra área: celeste flúor (hombre) y turquesa flúor (mujer) */
+  .perslist label.g-m{background:rgba(62,232,255,.09);border-color:rgba(62,232,255,.45)}
+  .perslist label.g-f{background:rgba(31,245,214,.09);border-color:rgba(31,245,214,.45)}
+  .perslist label.on.g-m{background:rgba(62,232,255,.22);border:1px solid #3ee8ff;color:#fff;box-shadow:0 0 14px rgba(62,232,255,.5)}
+  .perslist label.on.g-f{background:rgba(31,245,214,.22);border:1px solid #1ff5d6;color:#fff;box-shadow:0 0 14px rgba(31,245,214,.5)}
+  .perslist label.on.g-m input{accent-color:#3ee8ff}
+  .perslist label.on.g-f input{accent-color:#1ff5d6}
   .bgpick{display:flex;gap:8px;margin-bottom:8px}
   .modepick{display:flex;gap:8px;margin-bottom:10px}
   .modepick button{flex:1;min-height:44px;font-size:14.5px}
@@ -226,6 +233,13 @@
   .acc .codb{position:relative;flex:none;width:44px;height:38px;min-height:38px;padding:0;border-radius:9px;font-family:var(--display);font-size:12.5px;font-weight:700;
     color:var(--flu);border:1px solid var(--flu);background:rgba(244,255,58,.10);box-shadow:0 0 10px var(--flu-soft), inset 0 0 6px rgba(244,255,58,.12)}
   .acc .codb.ok::after{content:"✓";position:absolute;top:-10px;right:-7px;font-size:15px;font-weight:800;color:var(--flu);text-shadow:0 0 8px var(--flu-soft), 0 0 3px #000}
+  #accDiv{flex:1;min-width:0;border:1px solid var(--line);border-radius:11px;padding:11px 10px;font:inherit;background:#120624;color:var(--ink)}
+  .ghbox{margin-top:14px;padding:10px 12px;border:1px dashed rgba(31,245,214,.45);border-radius:12px;background:rgba(31,245,214,.05)}
+  .ghrow{display:flex;align-items:center;gap:8px;justify-content:space-between;font-size:13px;color:var(--muted)}
+  .ghrow button{flex:none;min-height:34px;padding:4px 10px;font-size:13px}
+  #ghEstado.ok{color:#1ff5d6;font-weight:700}
+  #ghEstado.err{color:#ff6b8a;font-weight:700}
+  #ghForm input{margin-top:10px}
   .acc .del{flex:none;width:34px;height:38px;min-height:38px;padding:0;font-size:15px;color:#ff6b8a;border-color:rgba(255,107,138,.45);background:transparent}
   .lock-msg{min-height:20px;color:#ff6b8a !important;font-weight:600}
   .lock-msg.ok{color:#1ff5d6 !important}
@@ -391,14 +405,29 @@
     <p class="hint" id="accPer" style="margin:-4px 2px 10px"></p>
     <div class="acclist" id="accList"></div>
     <label class="f" for="accNuevo">Agregar usuario</label>
-    <div class="fieldrow">
-      <input type="text" id="accNuevo" placeholder="Grado y nombre" autocomplete="off">
+    <input type="text" id="accNuevo" placeholder="Grado, apellido y nombre (ej: Cabo Pérez Juan)" autocomplete="off">
+    <div class="fieldrow" style="margin-top:8px">
+      <select id="accDiv" aria-label="Área">
+        <option value="?" selected disabled>¿De qué área es?</option>
+        <option value="radio">División Radio</option>
+        <option value="telefonia">División Telefonía</option>
+        <option value="troncalizado">División Sitio Troncalizado</option>
+        <option value="depto">Jefes</option>
+        <option value="">Otra área</option>
+      </select>
       <button type="button" id="accAgregar" class="primary" style="flex:none">Agregar</button>
+    </div>
+    <div class="ghbox">
+      <div class="ghrow"><span id="ghEstado">No conectado a GitHub</span><button type="button" id="ghBtn">Conectar GitHub</button></div>
+      <div id="ghForm" style="display:none">
+        <input type="password" id="ghTok" placeholder="Pegá el token de GitHub (github_pat_…)" autocomplete="off" spellcheck="false">
+        <div class="row" style="margin-top:8px"><button type="button" id="ghGuardar" class="primary grow">Guardar</button><button type="button" id="ghCancelar" class="grow">Cancelar</button></div>
+      </div>
     </div>
   </section>
 </main>
 
-<p class="pie"><span class="pie-l1">App by Charly Gervasoni - Versión 49 - 22/11/2026</span><span id="licPie" class="pie-user"></span></p>
+<p class="pie"><span class="pie-l1">App by Charly Gervasoni - Versión 51 - 22/11/2026</span><span id="licPie" class="pie-user"></span></p>
 
 <div class="bar"><div class="inner">
   <button id="btnNew" class="newp" title="Borra fotos y novedades"><span>Nuevo</span><span>parte</span></button>
@@ -536,7 +565,8 @@
     "Sgto 1° Tec. Pereyra Cristian",
     "Cabo 1° Guerrero David",
     "Personal Civil Celiz Ignacio",
-    "Personal Civil Sánchez Joaquin"
+    "Personal Civil Sánchez Joaquin",
+    "Personal Civil Quinteros Yanina"
   ];
 
   // ---------- Estado ----------
@@ -968,6 +998,7 @@
   };
   const sinTildes = t => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   function divisionDe(nombre) {
+    const extra = divDeLista(nombre); if (extra !== undefined) return extra || null;
     const n = sinTildes(nombre);
     for (const [div, aps] of Object.entries(DIV_DE_PERSONAL))
       if (aps.some(a => new RegExp("(^|[^a-z])" + a + "([^a-z]|$)").test(n))) return div;
@@ -994,13 +1025,40 @@
   // Personal seleccionable (se recuerda en cada celular)
   let persSel = [];
   // En la app master, el personal del punto 4 es la lista de usuarios del punto 5 (lo que se agrega o quita ahí, aparece o se va acá)
-  const listaPersonal = () => masterKey ? usuarios().map(u => u.n) : PERSONAL_LIST;
+  // En las demás apps: la lista fija + el dueño de la app (su nombre viene dentro del código), si no figura
+  const claveNombre = n => sinTildes(n || "").split(/[^a-z]+/).filter(Boolean).slice(-2).join(" ");   // apellido y nombre
+  // Lista que publica la app master en GitHub (personal.json); sin ella, la lista fija
+  const listaCompartida = () => { const l = store.get("personalCompartido", null); return Array.isArray(l) && l.length ? l : null; };
+  function divDeLista(nombre) {        // división cargada en el punto 5 (undefined si la persona no está ahí)
+    const l = masterKey ? usuarios() : (listaCompartida() || []);
+    const x = l.find(u => u.n === nombre); return x ? (x.d || "") : undefined;
+  }
+  const listaPersonal = () => {
+    if (masterKey) return usuarios().map(u => u.n);
+    const base = (listaCompartida() || []).map(u => u.n);
+    const lista = base.length ? base : PERSONAL_LIST;
+    const lic = store.get("lic", null), yo = lic && lic.n;
+    if (!yo || lista.some(n => claveNombre(n) === claveNombre(yo))) return lista;
+    return lista.concat(yo);
+  };
+  async function cargarPersonalCompartido() {
+    if (masterKey || soloInstalar) return;
+    try {
+      const r = await fetch("personal.json?t=" + Date.now(), { cache: "no-store" });
+      if (!r.ok) return;
+      const j = await r.json();
+      if (!Array.isArray(j.personal)) return;
+      const nueva = j.personal.filter(u => u && typeof u.n === "string" && u.n.trim()).map(u => ({ n: u.n.trim(), d: u.d || "" }));
+      if (JSON.stringify(nueva) === JSON.stringify(listaCompartida() || [])) return;
+      store.set("personalCompartido", nueva); renderPersonal(); refreshPreview();
+    } catch (e) {}
+  }
   function selectedPersonal() { return listaPersonal().filter(n => persSel.includes(n)); }
   function renderPersonal() {
     $("persList").innerHTML = "";
     listaPersonal().forEach(n => {
       const lab = document.createElement("label");
-      const dv = divisionDe(n); if (dv) lab.classList.add("d-" + dv);
+      const dv = divisionDe(n); lab.classList.add(dv ? "d-" + dv : (esMujer(n) ? "g-f" : "g-m"));   // otra área: color por género
       const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = persSel.includes(n);
       lab.classList.toggle("on", cb.checked);
       cb.addEventListener("change", () => {
@@ -1352,7 +1410,7 @@
     if (lic.p !== periodoDe()) {
       bloquear("Tu código venció el " + fmtF(finPer(lic.p)) + ". Pedí el código nuevo a Charly Gervasoni."); return;
     }
-    desbloquear(); mostrarLic(nombreLic(lic));
+    desbloquear(); mostrarLic(nombreLic(lic)); cargarPersonalCompartido();
     const bl = await bajas();
     if (bl && bl.includes(lic.p + "-" + lic.u)) { store.set("lic", null); mostrarLic(""); bloquear("Tu acceso fue dado de baja. Consultá con Charly Gervasoni."); }
   }
@@ -1371,7 +1429,7 @@
       if (c.p !== periodoDe()) { bloquear(c.p < periodoDe() ? "Ese código ya venció. Pedí el código nuevo a Charly Gervasoni." : "Ese código todavía no está vigente."); return; }
       const bl = await bajas();
       if (bl && bl.includes(c.p + "-" + c.u)) { bloquear("Ese código fue dado de baja."); return; }
-      store.set("lic", c); desbloquear(); $("lockCod").value = "";
+      store.set("lic", c); desbloquear(); $("lockCod").value = ""; renderPersonal(); cargarPersonalCompartido();
       mostrarLic(nombreLic(c)); toast("App activada ✓ " + nombreLic(c) + " (vale hasta el " + fmtF(ultDia(c.p)) + ")", 4000);
     } catch (e) {
       bloquear("No se pudo verificar. Probá de nuevo.");
@@ -1393,28 +1451,116 @@
     if (document.visibilityState !== "visible") return;
     const lic = store.get("lic", null);
     if (!masterKey && lic && lic.p !== periodoDe()) verificarLicencia();
-    if (masterKey) renderAccesos();
+    else if (!masterKey && lic) cargarPersonalCompartido();
+    if (masterKey) { renderAccesos(); if (store.get("ghPendiente", false)) pubCadena = pubCadena.then(publicarYa); }
   });
 
   // ---------- Punto 5: códigos de acceso (solo app master) ----------
   const MAX_USUARIOS = 100;
   function usuarios() {
     let us = store.get("usuarios", null);
-    if (!us) { us = PERSONAL_LIST.map((n, i) => ({ id: i + 1, n })); store.set("usuarios", us); store.set("usuarioSig", us.length + 1); }
+    if (!us) { us = PERSONAL_LIST.map((n, i) => ({ id: i + 1, n, d: divisionDeFija(n) || "" })); store.set("usuarios", us); store.set("usuarioSig", us.length + 1); }
     return us;
   }
+  function divisionDeFija(nombre) {
+    const n = sinTildes(nombre);
+    for (const [div, aps] of Object.entries(DIV_DE_PERSONAL))
+      if (aps.some(a => new RegExp("(^|[^a-z])" + a + "([^a-z]|$)").test(n))) return div;
+    return null;
+  }
+  async function recuperarUsuarios() {     // app master recién activada (o reinstalada): trae la lista publicada
+    if (store.get("usuarios", null)) return;
+    try {
+      const r = await fetch("personal.json?t=" + Date.now(), { cache: "no-store" }); if (!r.ok) return;
+      const j = await r.json(); if (!Array.isArray(j.personal) || !j.personal.length) return;
+      const us = j.personal.map((u, i) => ({ id: i + 1, n: u.n, d: u.d || "" }));
+      store.set("usuarios", us); store.set("usuarioSig", us.length + 1);
+    } catch (e) {}
+  }
+
+  // ---------- Publicar en GitHub (lista del personal y bajas) ----------
+  // La app master guarda un token de GitHub (solo con permiso sobre este repositorio) y escribe
+  // personal.json y licencias.json. Las demás apps los leen al abrirse.
+  const GH = "https://api.github.com/repos/charlygerva/parte-radio/contents/";
+  const b64utf8 = t => { const b = new TextEncoder().encode(t); let s = ""; for (let i = 0; i < b.length; i += 8192) s += String.fromCharCode(...b.subarray(i, i + 8192)); return btoa(s); };
+  async function ghPut(ruta, obj, msg, tok) {
+    const h = { Authorization: "Bearer " + tok, Accept: "application/vnd.github+json" };
+    for (let intento = 0; intento < 2; intento++) {
+      let sha;
+      const g = await fetch(GH + ruta + "?ref=main&t=" + Date.now(), { headers: h, cache: "no-store" });
+      if (g.status === 401 || g.status === 403) throw new Error("token");
+      if (g.ok) { const j = await g.json(); sha = j.sha; try { if (atob(j.content.replace(/\n/g, "")) === atob(b64utf8(JSON.stringify(obj, null, 1)))) return; } catch (e) {} }
+      const body = { message: msg, branch: "main", content: b64utf8(JSON.stringify(obj, null, 1)) }; if (sha) body.sha = sha;
+      const r = await fetch(GH + ruta, { method: "PUT", headers: h, body: JSON.stringify(body) });
+      if (r.ok) return;
+      if (r.status === 401 || r.status === 403) throw new Error("token");
+      if (r.status !== 409 && r.status !== 422) throw new Error("github " + r.status);
+    }
+    throw new Error("conflicto");
+  }
+  const bajasMaster = () => { const p = periodoDe(); return (store.get("bajasMaster", []) || []).filter(k => +k.split("-")[0] >= p); };
+  function marcarBaja(u, si) {
+    const k = periodoDe() + "-" + u; let b = bajasMaster().filter(x => x !== k); if (si) b.push(k);
+    store.set("bajasMaster", b);
+  }
+  let pubTimer = 0, pubCadena = Promise.resolve();
+  function publicar() { store.set("ghPendiente", true); clearTimeout(pubTimer); pubTimer = setTimeout(() => { pubCadena = pubCadena.then(publicarYa); }, 1200); }
+  async function publicarYa() {
+    const tok = store.get("ghToken", ""); if (!masterKey) return;
+    if (!tok) { estadoGH(); return; }
+    estadoGH("Publicando…");
+    try {
+      await ghPut("personal.json", { personal: usuarios().map(u => ({ n: u.n, d: u.d || "" })) }, "Lista de personal (desde la app master)", tok);
+      await ghPut("licencias.json", { bajas: bajasMaster() }, "Bajas de acceso (desde la app master)", tok);
+      store.set("ghPendiente", false); store.set("ghUltima", Date.now()); estadoGH();
+    } catch (e) {
+      estadoGH(e.message === "token" ? "El token no sirve o venció: tocá “Conectar GitHub”" : "Sin conexión: se publica cuando vuelva internet", true);
+    }
+  }
+  function estadoGH(txt, err) {
+    const el = $("ghEstado"); if (!el) return;
+    const tok = store.get("ghToken", "");
+    if (!txt) {
+      if (!tok) { txt = "No conectado a GitHub: los cambios quedan solo en este celular"; err = true; }
+      else if (store.get("ghPendiente", false)) { txt = "Hay cambios sin publicar"; err = true; }
+      else { const t = store.get("ghUltima", 0); txt = "Lista publicada ✓" + (t ? " " + new Date(t).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }) : ""); }
+    }
+    el.textContent = txt; el.className = err ? "err" : (tok ? "ok" : "");
+    $("ghBtn").textContent = tok ? "Cambiar token" : "Conectar GitHub";
+  }
+  $("ghBtn").addEventListener("click", () => { $("ghForm").style.display = ""; $("ghTok").focus(); });
+  $("ghCancelar").addEventListener("click", () => { $("ghForm").style.display = "none"; $("ghTok").value = ""; });
+  $("ghGuardar").addEventListener("click", async () => {
+    const tok = $("ghTok").value.trim(); if (!tok) return;
+    estadoGH("Probando el token…");
+    try {
+      const r = await fetch("https://api.github.com/repos/charlygerva/parte-radio", { headers: { Authorization: "Bearer " + tok, Accept: "application/vnd.github+json" }, cache: "no-store" });
+      if (!r.ok) throw new Error("token");
+      const j = await r.json(); if (j.permissions && j.permissions.push === false) throw new Error("permiso");
+      store.set("ghToken", tok); $("ghTok").value = ""; $("ghForm").style.display = "none";
+      toast("GitHub conectado ✓"); publicar(); pubCadena = pubCadena.then(publicarYa); clearTimeout(pubTimer);
+    } catch (e) {
+      estadoGH(e.message === "permiso" ? "El token no tiene permiso para escribir en el repositorio" : "Token incorrecto o sin acceso al repositorio", true);
+    }
+  });
   function accesos() {                     // casillas del período actual; el día 10 arrancan todas destildadas
     const p = periodoDe(); let a = store.get("accesos", null);
     if (!a || a.p !== p) { a = { p, cod: {} }; store.set("accesos", a); }
     return a;
   }
-  function abrirMaster() { $("panelMaster").style.display = ""; renderAccesos(); renderPersonal(); refreshPreview(); }
+  async function abrirMaster() {
+    $("panelMaster").style.display = "";
+    await recuperarUsuarios();
+    renderAccesos(); renderPersonal(); refreshPreview(); estadoGH();
+    if (store.get("ghPendiente", false)) pubCadena = pubCadena.then(publicarYa);
+  }
   let borrarArmado = { id: 0, t: 0 };
   async function asegurarCodigo(u) {         // genera (o actualiza) el código del usuario para este período
     const a = accesos();
     if (!a.cod[u.id] || !codTieneNombre(a.cod[u.id])) {
       a.cod[u.id] = await generarCodigo(a.p, u.id, u.n); a.copiado = a.copiado || {}; delete a.copiado[u.id]; store.set("accesos", a);
     }
+    if (bajasMaster().includes(a.p + "-" + u.id)) { marcarBaja(u.id, false); publicar(); }   // dar acceso levanta la baja
     return a.cod[u.id];
   }
   async function copiarTexto(txt) {
@@ -1437,10 +1583,13 @@
       const nm = document.createElement("span"); nm.textContent = u.n;
       lab.append(cb, nm); row.appendChild(lab);
       cb.addEventListener("change", async () => {
-        if (cb.checked) { await asegurarCodigo(u); toast("Acceso dado. Tocá “COD” para copiar el código y mandáselo por WhatsApp", 3500); }
-        else {
+        if (cb.checked) {
+          await asegurarCodigo(u);
+          toast("Acceso dado. Tocá “COD” para copiar el código y mandáselo por WhatsApp", 3500);
+        } else {
           const a2 = accesos(); delete a2.cod[u.id]; if (a2.copiado) delete a2.copiado[u.id]; store.set("accesos", a2);
-          toast("Sin acceso. El código que ya tenga vale hasta el " + fmtF(ultDia(a2.p)), 4000);
+          marcarBaja(u.id, true); publicar();
+          toast(store.get("ghToken", "") ? "Sin acceso: su app se bloquea la próxima vez que la abra con internet" : "Sin acceso. Conectá GitHub para bloquearlo ya; si no, su código vale hasta el " + fmtF(ultDia(a2.p)), 4500);
         }
         renderAccesos();
       });
@@ -1460,8 +1609,9 @@
       del.addEventListener("click", () => {
         if (borrarArmado.id !== u.id || Date.now() - borrarArmado.t > 3000) { borrarArmado = { id: u.id, t: Date.now() }; toast("Tocá ✕ de nuevo para quitar a " + u.n); return; }
         store.set("usuarios", usuarios().filter(x => x.id !== u.id));
-        const a2 = accesos(); delete a2.cod[u.id]; if (a2.copiado) delete a2.copiado[u.id]; store.set("accesos", a2);
-        toast("Usuario quitado"); renderAccesos(); renderPersonal(); refreshPreview();
+        const a2 = accesos(); const tenia = !!a2.cod[u.id]; delete a2.cod[u.id]; if (a2.copiado) delete a2.copiado[u.id]; store.set("accesos", a2);
+        if (tenia) marcarBaja(u.id, true);
+        publicar(); toast("Usuario quitado"); renderAccesos(); renderPersonal(); refreshPreview();
       });
       row.appendChild(del);
       $("accList").appendChild(row);
@@ -1469,11 +1619,13 @@
   }
   $("accAgregar").addEventListener("click", () => {
     const n = $("accNuevo").value.trim(); if (!n) { $("accNuevo").focus(); return; }
+    if ($("accDiv").value === "?") { toast("Elegí a qué área pertenece"); $("accDiv").focus(); $("accDiv").classList.add("invalid"); return; }
     const us = usuarios();
     if (us.length >= MAX_USUARIOS) { toast("Llegaste al máximo de " + MAX_USUARIOS + " usuarios"); return; }
     const id = store.get("usuarioSig", us.length + 1);
-    us.push({ id, n }); store.set("usuarios", us); store.set("usuarioSig", id + 1);
-    $("accNuevo").value = ""; toast("Agregado: " + n + " (también en el punto 4)"); renderAccesos(); renderPersonal();
+    us.push({ id, n, d: $("accDiv").value }); store.set("usuarios", us); store.set("usuarioSig", id + 1);
+    $("accNuevo").value = ""; $("accDiv").value = "?"; $("accDiv").classList.remove("invalid"); publicar();
+    toast("Agregado: " + n + " (también en el punto 4" + (store.get("ghToken", "") ? " de todos" : "") + ")"); renderAccesos(); renderPersonal();
   });
   $("accNuevo").addEventListener("keydown", e => { if (e.key === "Enter") $("accAgregar").click(); });
 

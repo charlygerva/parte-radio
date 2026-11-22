@@ -1,4 +1,4 @@
-// Service worker de Telecom Partes (v49)
+// Service worker de Telecom Partes (v51)
 // La app abre al instante con lo guardado en el celular (no espera a internet).
 // Cuando hay versión nueva, se bajan solo los archivos que cambiaron.
 const CACHE = "telecom-partes";
@@ -8,7 +8,7 @@ const FILES = {
  "icono-512.png": "39c939ade6",
  "icono-apple-180.png": "8798d83abb",
  "icono-maskable-512.png": "03ed13b75c",
- "index.html": "148292cf8a",
+ "index.html": "75c345f655",
  "manifest.webmanifest": "a13ebf069f",
  "recursos.bin": "05fef21ca3"
 };
