@@ -127,6 +127,13 @@
   .bgpick{display:flex;gap:8px;margin-bottom:8px}
   .modepick{display:flex;gap:8px;margin-bottom:10px}
   .modepick button{flex:1;min-height:44px;font-size:14.5px}
+  /* Solo texto: rojo flúor · Con imagen: rosa flúor */
+  .modepick button.m-txt{background:rgba(255,45,85,.10);border-color:rgba(255,64,96,.5)}
+  .modepick button.m-img{background:rgba(255,43,214,.10);border-color:rgba(255,92,224,.5)}
+  .modepick button.m-txt.on{background:rgba(255,45,85,.26);border:1px solid #ff3b5c;color:#fff;
+    box-shadow:0 0 16px rgba(255,45,85,.65), inset 0 0 10px rgba(255,45,85,.2);text-shadow:0 0 8px rgba(255,59,92,.8)}
+  .modepick button.m-img.on{background:rgba(255,43,214,.26);border:1px solid #ff4fe0;color:#fff;
+    box-shadow:0 0 16px rgba(255,43,214,.6), inset 0 0 10px rgba(255,43,214,.2);text-shadow:0 0 8px rgba(255,79,224,.8)}
   .divpick{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;align-items:stretch}
   @media (min-width:400px){.divpick{grid-template-columns:repeat(4,1fr)}}
   /* Depto. Telecom.: rosa flúor */
@@ -207,8 +214,8 @@
     <!-- Orden: divisiones arriba, con imagen / solo texto al medio, fondos abajo -->
     <div class="divpick" id="divPick"></div>
     <div class="modepick" id="modePick">
-      <button type="button" data-mode="img" class="on">📷 Con imagen</button>
-      <button type="button" data-mode="txt">💬 Solo texto</button>
+      <button type="button" data-mode="txt" class="m-txt on">💬 Solo texto</button>
+      <button type="button" data-mode="img" class="m-img">📷 Con imagen</button>
     </div>
     <p class="hint" id="txtNote" style="display:none;margin:-4px 2px 8px">El parte se manda <b>solo con el texto</b>, sin imagen. Para agregar fotos, elegí “Con imagen”.</p>
     <div id="photoEditor">
@@ -297,7 +304,7 @@
   </section>
 </main>
 
-<p class="pie">App by Charly Gervasoni - Versión 35 - 22/11/2026</p>
+<p class="pie">App by Charly Gervasoni - Versión 36 - 22/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -1020,7 +1027,7 @@
   $("btnNew").addEventListener("click", () => {
     if (Date.now() - newArmed > 3000) { newArmed = Date.now(); toast("Tocá de nuevo para confirmar"); return; }
     newArmed = 0; rememberLugar();
-    photos = []; sel = -1; swapFrom = -1; setMode(false);
+    photos = []; sel = -1; swapFrom = -1; setMode(true);
     bgId = "oscuro"; if (typeof markPickers === "function") markPickers();
     ["contenido", "lugar", "titulo"].forEach(id => { $(id).value = ""; store.set(id, ""); $(id).classList.remove("invalid"); });
     $("fecha").value = todayISO(); loadFields(); refreshPreview(); updateUI(); toast("Listo, parte nuevo");
@@ -1098,6 +1105,7 @@
     $("divPick").appendChild(btn);
   });
   markPickers(); aplicarDivisionSegunPersonal(false); refreshPreview();
+  setMode(true);  // la app arranca en "Solo texto"
   updateUI();
 })();
 </script>
