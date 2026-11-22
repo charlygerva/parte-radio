@@ -3,9 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#12305a">
+<meta name="theme-color" content="#14032a">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Parte de Novedades · Div. Radio</title>
+<title>Parte de Novedades - Depto Telecomunicaciones</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="escudo-192.png">
 <link rel="apple-touch-icon" href="escudo-apple-180.png">
@@ -13,115 +15,144 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <style>
+  /* Piel: negro, violeta profundo, violeta y amarillo flúor con brillo */
   :root{
-    --navy:#12305a; --navy2:#1d4580; --ink:#1b2430; --muted:#5d6b7c; --line:#d9dfe7;
-    --bg:#eef1f5; --card:#fff; --accent:#e2542b; --wa:#1fa855; --wa2:#25d366; --sel:#ff9f1a;
+    color-scheme:dark;
+    --bg:#000000;
+    --ink:#f3ecff; --muted:#a99cc6;
+    --violet:#3d0b73; --violet2:#5a17a6;          /* lo que antes era azul */
+    --neon:#c45cff; --neon-soft:rgba(196,92,255,.35); --neon-faint:rgba(196,92,255,.14);
+    --flu:#f4ff3a; --flu-soft:rgba(244,255,58,.35);
+    --glass:rgba(60,20,110,.22); --glass2:rgba(255,255,255,.04);
+    --line:rgba(196,92,255,.28);
+    --wa:#1fbf5c; --wa-glow:rgba(37,211,102,.45);
+    --display:"Chakra Petch",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
   }
   *{box-sizing:border-box}
   html,body{margin:0;background:var(--bg);color:var(--ink);
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px;-webkit-text-size-adjust:100%}
-  header{background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;position:sticky;top:0;z-index:20;
-    box-shadow:0 2px 8px rgba(0,0,0,.15)}
-  header h1{margin:0;font-size:17px;letter-spacing:.3px}
-  header p{margin:2px 0 0;font-size:12.5px;opacity:.8}
-  main{max-width:600px;margin:0 auto;padding:12px 12px calc(110px + env(safe-area-inset-bottom))}
-  .card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.07)}
-  .card h2{margin:0 0 10px;font-size:15px;color:var(--navy);display:flex;align-items:center;gap:8px}
-  .step{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px}
-  .canvas-wrap{position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#fff}
+  body{background:
+    radial-gradient(120% 60% at 50% -10%, rgba(120,40,200,.35), transparent 60%),
+    radial-gradient(80% 40% at 100% 100%, rgba(196,92,255,.10), transparent 70%), #000;
+    background-attachment:fixed;min-height:100vh}
+  header{background:linear-gradient(180deg, rgba(61,11,115,.92), rgba(30,6,58,.88));color:#fff;
+    padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;position:sticky;top:0;z-index:20;
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--neon);box-shadow:0 1px 0 var(--neon), 0 6px 24px rgba(196,92,255,.35)}
+  header h1{margin:0;font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:.2px;
+    text-shadow:0 0 10px rgba(196,92,255,.85), 0 0 22px rgba(196,92,255,.45)}
+  header p{margin:2px 0 0;font-size:12.5px;color:#d9c8ff;opacity:.85}
+  main{max-width:600px;margin:0 auto;padding:14px 12px calc(110px + env(safe-area-inset-bottom))}
+  .card{background:linear-gradient(180deg, var(--glass), rgba(20,6,40,.35));border:1px solid var(--line);
+    border-radius:16px;padding:14px;margin-bottom:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.6)}
+  .card h2{margin:0 0 12px;font-family:var(--display);font-weight:700;font-size:16px;color:#efe2ff;display:flex;align-items:center;gap:9px}
+  .step{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--flu);color:#1a0533;
+    font-family:var(--display);font-size:13px;font-weight:700;box-shadow:0 0 10px var(--flu-soft), 0 0 2px var(--flu)}
+  .canvas-wrap{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--neon-soft);background:#000;
+    box-shadow:0 0 0 1px rgba(196,92,255,.15), 0 0 26px rgba(196,92,255,.18)}
   canvas#cv{display:block;width:100%;height:auto;touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
-  .hint{font-size:12.5px;color:var(--muted);margin:8px 2px 0;line-height:1.35}
+  .hint{font-size:12.5px;color:var(--muted);margin:8px 2px 0;line-height:1.4}
+  .hint b{color:#e9dcff}
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  button,.btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;
+  button,.btn{appearance:none;border:1px solid var(--line);background:var(--glass2);color:var(--ink);border-radius:11px;
     padding:10px 12px;font-size:14.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;
-    text-decoration:none;min-height:42px}
+    text-decoration:none;min-height:42px;transition:box-shadow .15s, border-color .15s, background .15s}
   button:active,.btn:active{transform:scale(.98)}
-  button:disabled{opacity:.45}
-  .primary{background:var(--navy);border-color:var(--navy);color:#fff}
+  button:disabled{opacity:.4}
+  button:focus-visible,.btn:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--flu);outline-offset:2px}
+  .primary{background:linear-gradient(180deg, var(--violet2), var(--violet));border-color:var(--neon);color:#fff;
+    box-shadow:0 0 14px rgba(196,92,255,.45), inset 0 1px 0 rgba(255,255,255,.15)}
   .grow{flex:1}
-  .wa{background:var(--wa);border-color:var(--wa);color:#fff}
-  .danger{color:#b42318}
+  .wa{background:linear-gradient(180deg, #27d466, #14a64a);border-color:#4cf08a;color:#04210f;font-weight:800;
+    box-shadow:0 0 18px var(--wa-glow), inset 0 1px 0 rgba(255,255,255,.35)}
+  .danger{color:#ff6b8a}
   .tools{margin-top:10px}
-  .seltools{margin-top:10px;padding:10px;border-radius:10px;background:#fff7ea;border:1px solid #ffd9a0;display:none}
+  .seltools{margin-top:10px;padding:10px;border-radius:12px;background:rgba(244,255,58,.07);border:1px solid var(--flu-soft);display:none;
+    box-shadow:0 0 16px rgba(244,255,58,.08)}
   .seltools.on{display:block}
-  .seltools .title{font-size:13px;font-weight:700;color:#8a5200;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+  .seltools .title{font-size:13px;font-weight:700;color:var(--flu);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
   .seltools button{padding:8px 10px;font-size:13.5px;min-height:38px}
-  label.f{display:block;font-size:12.5px;font-weight:700;color:var(--muted);margin:12px 0 5px;text-transform:uppercase;letter-spacing:.4px}
-  input[type=text],input[type=date],textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;background:#fbfcfd;color:var(--ink)}
-  textarea{resize:vertical;min-height:110px;line-height:1.4}
-  input:focus,textarea:focus{outline:2px solid #8fb2e8;border-color:#8fb2e8;background:#fff}
+  label.f{display:block;font-size:13px;font-weight:700;color:#cbb8f0;margin:14px 0 6px}
+  input[type=text],input[type=date],textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 12px;font:inherit;
+    background:rgba(255,255,255,.035);color:var(--ink)}
+  input::placeholder,textarea::placeholder{color:#7f7299}
+  textarea{resize:vertical;min-height:110px;line-height:1.45}
+  input:focus,textarea:focus{outline:none;border-color:var(--neon);background:rgba(196,92,255,.07);box-shadow:0 0 0 3px rgba(196,92,255,.18), 0 0 16px rgba(196,92,255,.25)}
   .upper{text-transform:uppercase}
   .iconpick{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center}
   .iconpick .lbl{font-size:12px;color:var(--muted);margin-right:2px}
   .iconpick button{min-height:34px;padding:4px 10px;font-size:15px;font-weight:600}
-  .iconpick button.on{border:2px solid var(--navy);background:#e8eef8;color:var(--navy)}
+  .iconpick button.on,.emogrid button.on,.modepick button.on,.divpick button.on,.bgpick button.on{
+    border:1px solid var(--neon);background:rgba(196,92,255,.18);color:#fff;box-shadow:0 0 12px rgba(196,92,255,.45), inset 0 0 10px rgba(196,92,255,.15)}
   .iconpick .cur{min-width:120px;justify-content:space-between}
-  .emogrid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:6px;padding:8px;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.08);width:100%}
-  .emogrid button{min-height:42px;padding:0;font-size:22px;font-weight:400;border-radius:8px}
+  .emogrid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin-top:6px;padding:8px;border:1px solid var(--neon-soft);border-radius:12px;
+    background:rgba(18,4,36,.92);box-shadow:0 10px 30px rgba(0,0,0,.7), 0 0 18px rgba(196,92,255,.2);width:100%}
+  .emogrid button{min-height:42px;padding:0;font-size:22px;font-weight:400;border-radius:9px}
   .emogrid button.wide{grid-column:span 4;font-size:14px;font-weight:600}
-  .emogrid button.on{border:2px solid var(--navy);background:#e8eef8}
   .perslist{display:grid;grid-template-columns:1fr;gap:6px}
   @media (min-width:520px){.perslist{grid-template-columns:1fr 1fr}}
-  .perslist label{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd;font-size:14.5px;cursor:pointer;user-select:none}
-  .perslist input{width:20px;height:20px;accent-color:var(--navy);flex:none}
-  .perslist label.on{border-color:var(--navy);background:#e8eef8;font-weight:600}
+  .perslist label{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;
+    background:rgba(255,255,255,.03);font-size:14.5px;cursor:pointer;user-select:none}
+  .perslist input{width:20px;height:20px;accent-color:var(--neon);flex:none}
+  .perslist label.on{font-weight:700;color:#fff}
   /* Colores por división (transparentes): Radio azul, Telefonía verde, Sitio Troncalizado amarillo */
-  .d-radio{background:rgba(37,99,235,.13) !important;border-color:rgba(37,99,235,.40) !important}
-  .d-telefonia{background:rgba(22,163,74,.13) !important;border-color:rgba(22,163,74,.40) !important}
-  .d-troncalizado{background:rgba(234,179,8,.20) !important;border-color:rgba(202,138,4,.50) !important}
-  .perslist label.on.d-radio{background:rgba(37,99,235,.30) !important;border:2px solid rgb(37,99,235) !important}
-  .perslist label.on.d-telefonia{background:rgba(22,163,74,.30) !important;border:2px solid rgb(22,163,74) !important}
-  .perslist label.on.d-troncalizado{background:rgba(234,179,8,.40) !important;border:2px solid rgb(202,138,4) !important}
+  .d-radio{background:rgba(59,130,246,.13) !important;border-color:rgba(96,165,250,.42) !important}
+  .d-telefonia{background:rgba(34,197,94,.11) !important;border-color:rgba(74,222,128,.40) !important}
+  .d-troncalizado{background:rgba(250,204,21,.10) !important;border-color:rgba(250,204,21,.45) !important}
+  .perslist label.on.d-radio,.divpick button.on.d-radio{background:rgba(59,130,246,.30) !important;border:1px solid #60a5fa !important;color:#fff;box-shadow:0 0 14px rgba(96,165,250,.5)}
+  .perslist label.on.d-telefonia,.divpick button.on.d-telefonia{background:rgba(34,197,94,.26) !important;border:1px solid #4ade80 !important;color:#fff;box-shadow:0 0 14px rgba(74,222,128,.45)}
+  .perslist label.on.d-troncalizado,.divpick button.on.d-troncalizado{background:rgba(250,204,21,.22) !important;border:1px solid #facc15 !important;color:#fff;box-shadow:0 0 14px rgba(250,204,21,.45)}
+  .perslist label.on.d-radio input{accent-color:#60a5fa}
+  .perslist label.on.d-telefonia input{accent-color:#4ade80}
+  .perslist label.on.d-troncalizado input{accent-color:#facc15}
   .bgpick{display:flex;gap:8px;margin-bottom:8px}
   .modepick{display:flex;gap:8px;margin-bottom:10px}
   .modepick button{flex:1;min-height:44px;font-size:14.5px}
-  .modepick button.on{border:2px solid var(--navy);background:#e8eef8;color:var(--navy)}
   .divpick{display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap}
   .divpick .lbl{font-size:12.5px;color:var(--muted);font-weight:700;margin-right:2px}
   .divpick button{flex:1;min-height:40px;padding:6px 8px;font-size:13.5px;line-height:1.15}
-  .divpick button.on{border:2px solid var(--navy);background:#e8eef8;color:var(--navy)}
-  .divpick button.on.d-radio{background:rgba(37,99,235,.32) !important;border:2px solid rgb(37,99,235) !important;color:#0f2f73}
-  .divpick button.on.d-telefonia{background:rgba(22,163,74,.32) !important;border:2px solid rgb(22,163,74) !important;color:#0d4d24}
-  .divpick button.on.d-troncalizado{background:rgba(234,179,8,.42) !important;border:2px solid rgb(202,138,4) !important;color:#5c3d00}
   .bgpick button{flex:1;padding:6px;gap:8px;justify-content:flex-start;min-height:52px;font-size:14px}
-  .bgpick img{width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--line)}
-  .bgpick button.on{border:2px solid var(--navy);background:#e8eef8;color:var(--navy)}
-  .bgpick button.on::after{content:"✓";margin-left:auto;padding-right:6px;font-weight:800}
-  .req{color:#c0392b}
-  .opt{font-weight:400;text-transform:none;letter-spacing:0}
-  .invalid{border-color:#d93025 !important;background:#fff4f3 !important;outline:2px solid #f3b2ab}
-  .install{display:none;margin:0 0 12px;padding:12px 14px;border-radius:14px;background:#e8eef8;border:1px solid #c9d6ec;font-size:14px;line-height:1.4}
+  .bgpick img{width:40px;height:40px;border-radius:7px;object-fit:cover;border:1px solid var(--line)}
+  .bgpick button.on::after{content:"✓";margin-left:auto;padding-right:6px;font-weight:800;color:var(--flu);text-shadow:0 0 8px var(--flu-soft)}
+  .req{color:var(--flu)}
+  .opt{font-weight:400}
+  .invalid{border-color:#ff4d7a !important;background:rgba(255,77,122,.08) !important;box-shadow:0 0 0 3px rgba(255,77,122,.2), 0 0 14px rgba(255,77,122,.3) !important}
+  .install{display:none;margin:0 0 14px;padding:12px 14px;border-radius:14px;background:rgba(196,92,255,.10);border:1px solid var(--neon-soft);font-size:14px;line-height:1.4}
   .install.on{display:block}
   .install .row{margin-top:8px}
   .slider{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-top:8px}
   .slider span{min-width:84px}
-  .slider input{flex:1;accent-color:var(--navy)}
+  .slider input{flex:1;accent-color:var(--neon)}
   .chk{display:flex;align-items:center;gap:8px;font-size:14px;margin-top:10px}
-  .chk input{width:20px;height:20px;accent-color:var(--navy)}
+  .chk input{width:20px;height:20px;accent-color:var(--neon)}
   details{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
-  summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--navy2);padding:4px 0}
-  pre.preview{white-space:pre-wrap;word-break:break-word;background:#e7f7ec;border:1px solid #bfe6cb;border-radius:10px;padding:12px;
-    font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;margin:0;max-height:none}
-  .bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);
-    border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+  summary{cursor:pointer;font-size:13.5px;font-weight:600;color:#d7c2ff;padding:4px 0}
+  pre.preview{white-space:pre-wrap;word-break:break-word;background:rgba(0,92,75,.30);border:1px solid rgba(37,211,102,.35);border-radius:12px;padding:12px;
+    color:#e9fff1;font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;margin:0;max-height:none}
+  .bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(8,2,18,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    border-top:1px solid var(--neon-soft);box-shadow:0 -8px 24px rgba(0,0,0,.6);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
   .bar .inner{max-width:600px;margin:0 auto;display:flex;gap:8px}
   .bar .wa{flex:1;font-size:16px;min-height:50px}
   .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;
-    background:#1b2430;color:#fff;padding:10px 14px;border-radius:10px;font-size:14px;z-index:50;transition:.25s;pointer-events:none;max-width:90vw;text-align:center}
+    background:rgba(28,8,52,.95);border:1px solid var(--neon);color:#fff;padding:10px 14px;border-radius:12px;font-size:14px;z-index:50;transition:.25s;
+    pointer-events:none;max-width:90vw;text-align:center;box-shadow:0 0 18px rgba(196,92,255,.45)}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-  .modal{position:fixed;inset:0;background:rgba(10,20,35,.6);z-index:60;display:none;align-items:flex-end;justify-content:center}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:60;display:none;align-items:flex-end;justify-content:center}
   .modal.on{display:flex}
-  .sheet{background:#fff;width:100%;max-width:600px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 14px calc(16px + env(safe-area-inset-bottom))}
-  .sheet h3{margin:0 0 6px;color:var(--navy);font-size:16px}
+  .sheet{background:#0d0319;border:1px solid var(--neon-soft);border-bottom:0;width:100%;max-width:600px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;
+    padding:16px 14px calc(16px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px rgba(196,92,255,.25)}
+  .sheet h3{margin:0 0 6px;font-family:var(--display);color:#fff;font-size:17px;text-shadow:0 0 10px rgba(196,92,255,.6)}
   .sheet img{width:100%;border-radius:10px;border:1px solid var(--line);display:block;-webkit-touch-callout:default}
   .steps{font-size:13.5px;color:var(--ink);line-height:1.45;padding-left:20px;margin:10px 0}
-  .counter{font-size:12.5px;color:var(--muted);margin-left:auto}
+  .counter{font-size:12.5px;color:var(--muted);margin-left:auto;font-family:var(--display)}
   .layoutinfo{font-size:12.5px;color:var(--muted)}
+  @media (prefers-reduced-motion: reduce){*{transition:none !important}}
 </style>
 </head>
 <body>
 <header>
-  <h1>Parte de Novedades · División Radio</h1>
+  <h1>Parte de Novedades - Depto Telecomunicaciones</h1>
   <p>Armá la imagen y el mensaje para WhatsApp</p>
 </header>
 
@@ -211,16 +242,9 @@
     </div>
     <label class="f" for="personal">Otro personal <span class="opt">(opcional, uno por línea)</span></label>
     <textarea id="personal" rows="2" style="min-height:60px" placeholder="Si no está en la lista, escribilo acá"></textarea>
-    <label class="chk"><input type="checkbox" id="persTitulo"> Poner el título <b>“PERSONAL INTERVINIENTE:”</b> arriba del personal</label>
+    <label class="chk"><input type="checkbox" id="persTitulo"><span>Poner el título <b>“PERSONAL INTERVINIENTE:”</b> arriba del personal</span></label>
     <div class="iconpick" id="iconPers"></div>
 
-    <details>
-      <summary>Encabezado fijo y formato</summary>
-      <label class="f" for="encabezado">Encabezado (siempre igual)</label>
-      <textarea id="encabezado" rows="3" style="min-height:84px"></textarea>
-      <p class="hint">En WhatsApp todo sale en <b>negrita</b> (con *asteriscos*), salvo el contenido del parte.<br>
-      Los íconos arrancan en "Sin ícono". Si elegís "Auto": 🎤 audio · 🚔 móvil (no los Beta 1, 2, 6, 7, 8 y 9, que son nuestros) · 🏢 dependencia policial · 📌 todo lo demás (en el lugar: 🏢 si es una dependencia, si no 📍). Con "Sin ícono" el renglón sale sin ícono.</p>
-    </details>
   </section>
 
   <!-- 3. VISTA PREVIA -->
@@ -237,7 +261,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 21 · 22/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 23 · 22/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -273,8 +297,8 @@
   // Fondos disponibles (mismo tamaño y misma zona libre)
   // Fondo: color (blanco/negro) × división. Todos con el mismo tamaño y la misma zona libre.
   const BACKGROUNDS = [
-    { id: "claro", name: "Fondo blanco", dark: false },
-    { id: "oscuro", name: "Fondo negro", dark: true }
+    { id: "oscuro", name: "Fondo negro", dark: true },
+    { id: "claro", name: "Fondo blanco", dark: false }
   ];
   const DIVISIONES = [
     { id: "radio", name: "Radio", abrev: "DIV. RADIO", src: { claro: "parte-radio-blanco.jpg", oscuro: "parte-radio.jpg" } },
@@ -347,7 +371,7 @@
   const $ = id => document.getElementById(id);
   const cv = $("cv"), ctx = cv.getContext("2d");
   const BG_IMGS = {};
-  let bgId = "claro", divId = "radio";
+  let bgId = "oscuro", divId = "radio";
   const curDiv = () => DIVISIONES.find(d => d.id === divId) || DIVISIONES[0];
   const curBG = () => { const b = BACKGROUNDS.find(x => x.id === bgId) || BACKGROUNDS[0]; return Object.assign({}, b, { src: curDiv().src[b.id] }); };
   let photos = [];          // {src, w, h, zoom, px, py}
@@ -453,7 +477,7 @@
       c.drawImage(p.src, g.x, g.y, g.dw, g.dh);
       c.restore();
       if (!forExport && (i === sel || i === swapFrom)) {
-        c.save(); c.lineWidth = 8; c.strokeStyle = i === swapFrom ? "#2f80ed" : "#ff9f1a";
+        c.save(); c.lineWidth = 8; c.strokeStyle = i === swapFrom ? "#c45cff" : "#f4ff3a";
         c.setLineDash(i === swapFrom ? [24, 12] : []);
         rr(c, cell.x - 4, cell.y - 4, cell.w + 8, cell.h + 8, rad + 4); c.stroke();
         c.fillStyle = c.strokeStyle; c.beginPath(); c.arc(cell.x + 34, cell.y + 34, 26, 0, Math.PI * 2); c.fill();
@@ -674,7 +698,7 @@
     // Formato: encabezado en negrita (un bloque), 📅 fecha, ícono + título, 📍 lugar, ícono + contenido, ▪️ personal
     const bold = s => s.trim() ? "*" + s.trim().replace(/\*/g, "") + "*" : "";
     // El renglón "DIV. ..." del encabezado sigue a la división elegida en el editor
-    const headLines = ($("encabezado").value || DEF_HEADER).split("\n").map(l => l.trim().replace(/\*/g, "")).filter(Boolean)
+    const headLines = DEF_HEADER.split("\n").map(l => l.trim().replace(/\*/g, "")).filter(Boolean)
       .map(l => /^DIV(\.|\s)/i.test(l) ? curDiv().abrev : l);
     // WhatsApp no aplica negrita a través de saltos de línea: cada renglón va con sus propios *asteriscos*
     const header = headLines.map(l => "*" + l + "*").join("\n");
@@ -804,9 +828,8 @@
     renderIconPicks();
   }
 
-  const FIELDS = ["titulo", "lugar", "contenido", "personal", "encabezado"];
+  const FIELDS = ["titulo", "lugar", "contenido", "personal"];
   function loadFields() {
-    $("encabezado").value = store.get("encabezado2", DEF_HEADER);
     iconMode.titulo = "none"; iconMode.lugar = "none"; iconMode.contenido = "none"; pickOpen = null;
     // Cada vez que se abre la app arranca limpia (igual que "Nuevo parte"):
     // sin fotos, sin título, sin lugar y sin contenido. El personal elegido se recuerda.
@@ -827,7 +850,7 @@
     const lugares = store.get("lugares", []);
     $("lugares").innerHTML = lugares.map(l => "<option value=\"" + l.replace(/"/g, "&quot;") + "\">").join("");
   }
-  FIELDS.forEach(id => $(id).addEventListener("input", () => { store.set(id === "encabezado" ? "encabezado2" : id, $(id).value); $(id).classList.remove("invalid"); refreshPreview(); }));
+  FIELDS.forEach(id => $(id).addEventListener("input", () => { store.set(id, $(id).value); $(id).classList.remove("invalid"); refreshPreview(); }));
   $("personal").addEventListener("change", () => aplicarDivisionSegunPersonal(true));
   $("fecha").addEventListener("input", () => { $("fecha").classList.remove("invalid"); refreshPreview(); });
 
@@ -955,6 +978,7 @@
     if (Date.now() - newArmed > 3000) { newArmed = Date.now(); toast("Tocá de nuevo para confirmar"); return; }
     newArmed = 0; rememberLugar();
     photos = []; sel = -1; swapFrom = -1; setMode(false);
+    bgId = "oscuro"; if (typeof markPickers === "function") markPickers();
     ["contenido", "lugar", "titulo"].forEach(id => { $(id).value = ""; store.set(id, ""); $(id).classList.remove("invalid"); });
     $("fecha").value = todayISO(); loadFields(); refreshPreview(); updateUI(); toast("Listo, parte nuevo");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1002,8 +1026,8 @@
 
   // ---------- Inicio ----------
   loadFields(); refreshPreview();
-  bgId = store.get("fondo", "claro");
-  if (!BACKGROUNDS.some(b => b.id === bgId)) bgId = "claro";
+  // Siempre arranca con fondo negro y "Con imagen"
+  bgId = "oscuro";
   divId = store.get("division", "radio");
   if (!DIVISIONES.some(d => d.id === divId)) divId = "radio";
   DIVISIONES.forEach(dv => BACKGROUNDS.forEach(b => {

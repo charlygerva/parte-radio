@@ -1,13 +1,13 @@
 {
-  "name": "Parte de Novedades · División Radio",
+  "name": "Parte de Novedades - Depto Telecomunicaciones",
   "short_name": "Parte Radio",
   "description": "Arma la imagen y el mensaje de WhatsApp del parte de novedades.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#eef1f5",
-  "theme_color": "#12305a",
+  "background_color": "#000000",
+  "theme_color": "#14032a",
   "lang": "es-AR",
   "icons": [
     {
