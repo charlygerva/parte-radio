@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#14032a">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Parte de Novedades - Departamento Telecomunicaciones</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -35,10 +35,9 @@
   body{background:
     radial-gradient(120% 60% at 50% -10%, rgba(120,40,200,.35), transparent 60%),
     radial-gradient(80% 40% at 100% 100%, rgba(196,92,255,.10), transparent 70%), #000;
-    background-attachment:fixed;min-height:100vh}
-  header{background:linear-gradient(180deg, rgba(61,11,115,.92), rgba(30,6,58,.88));color:#fff;
+    min-height:100vh}
+  header{background:linear-gradient(180deg, #380a6a, #1a0533);color:#fff;
     padding:calc(env(safe-area-inset-top) + 6px) 16px 6px;position:sticky;top:0;z-index:20;
-    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
     border-bottom:1px solid var(--neon);box-shadow:0 1px 0 var(--neon), 0 6px 24px rgba(196,92,255,.35)}
   .hd{max-width:600px;margin:0 auto;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:12px}
   .hd-txt{text-align:left;min-width:0}
@@ -61,7 +60,7 @@
   header p{margin:3px 0 0;font-size:12.5px;line-height:1.3;color:#d9c8ff;opacity:.85}
   main{max-width:600px;margin:0 auto;padding:14px 12px calc(110px + env(safe-area-inset-bottom))}
   .card{background:linear-gradient(180deg, var(--glass), rgba(20,6,40,.35));border:1px solid var(--line);
-    border-radius:16px;padding:14px;margin-bottom:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    border-radius:16px;padding:14px;margin-bottom:14px;
     box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.6)}
   .card h2{margin:0 0 12px;font-family:var(--display);font-weight:700;font-size:16px;color:#efe2ff;display:flex;align-items:center;gap:9px}
   .step{flex:none;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--flu);color:#1a0533;
@@ -104,7 +103,7 @@
   .fieldrow.top{align-items:flex-start}
   .emo-btn{flex:none;position:relative;width:46px;min-height:46px;padding:0;font-size:22px;border-radius:11px;color:var(--c);
     border:1px solid var(--c);background:var(--g2);box-shadow:0 0 10px var(--g), inset 0 0 8px var(--g2)}
-  .emo-btn svg{width:26px;height:26px;filter:drop-shadow(0 0 3px var(--g))}
+  .emo-btn svg{width:26px;height:26px}
   .emo-btn.sm{margin-left:auto;width:40px;height:40px;min-height:40px}
   .emo-btn.sm svg{width:23px;height:23px}
   .emo-btn.on{background:var(--g);box-shadow:0 0 18px var(--c), inset 0 0 10px var(--g)}
@@ -195,7 +194,7 @@
   summary{cursor:pointer;font-size:13.5px;font-weight:600;color:#d7c2ff;padding:4px 0}
   pre.preview{white-space:pre-wrap;word-break:break-word;background:rgba(0,92,75,.30);border:1px solid rgba(37,211,102,.35);border-radius:12px;padding:12px;
     color:#e9fff1;font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;margin:0;max-height:none}
-  .bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(8,2,18,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  .bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(8,2,18,.96);
     border-top:1px solid var(--neon-soft);box-shadow:0 -8px 24px rgba(0,0,0,.6);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
   .bar .inner{max-width:600px;margin:0 auto;display:flex;gap:8px}
   .bar .wa{flex:1;font-size:15.5px;min-height:50px;padding:8px 10px}
@@ -359,7 +358,7 @@
   </section>
 </main>
 
-<p class="pie">App by Charly Gervasoni - Versión 45 - 22/11/2026</p>
+<p class="pie">App by Charly Gervasoni - Versión 46 - 22/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnNew" class="newp" title="Borra fotos y novedades"><span>Nuevo</span><span>parte</span></button>
@@ -476,6 +475,7 @@
   const $ = id => document.getElementById(id);
   const cv = $("cv"), ctx = cv.getContext("2d");
   const BG_IMGS = {};
+  let soloTexto = false;    // "Solo texto": no se dibuja la imagen (ahorra trabajo al celular)
   let bgId = "oscuro", divId = "radio";
   let seccion = "";   // "oce" | "str" (Radio) · "tt" | "stt" (Telefonía) · "" = ninguna
   const curSecc = () => (curDiv().secciones || []).find(x => x.id === seccion) || null;
@@ -595,6 +595,7 @@
   }
   let rafPending = false;
   function draw() {
+    if (soloTexto) return;
     if (rafPending) return; rafPending = true;
     requestAnimationFrame(() => { rafPending = false; render(ctx, false); });
     blobDirty = true; scheduleBlob();
@@ -1041,7 +1042,6 @@
   }
 
   // ---------- Con imagen / solo texto ----------
-  let soloTexto = false;
   function setMode(txt) {
     soloTexto = txt;
     document.querySelectorAll("#modePick button").forEach(b => b.classList.toggle("on", (b.dataset.mode === "txt") === txt));
@@ -1050,7 +1050,7 @@
     $("count").style.display = txt ? "none" : "";
     $("btnSave").style.display = txt ? "none" : "";
     $("btnShare").textContent = txt ? "Enviar texto por WhatsApp" : "Enviar por WhatsApp";
-    if (txt) { sel = -1; swapFrom = -1; }
+    if (txt) { sel = -1; swapFrom = -1; } else draw();
   }
   document.querySelectorAll("#modePick button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode === "txt")));
 
@@ -1154,11 +1154,14 @@
   divId = store.get("division", "radio");
   if (!DIVISIONES.some(d => d.id === divId)) divId = "radio";
   seccion = store.get("seccion", "");
-  DIVISIONES.forEach(dv => BACKGROUNDS.forEach(b => {
-    const src = dv.src[b.id];
+  // Se cargan solo los fondos de la división elegida (los demás, cuando se eligen)
+  const cargarFondos = () => BACKGROUNDS.forEach(b => {
+    const src = curDiv().src[b.id];
+    if (BG_IMGS[src]) return;
     const img = new Image(); img.onload = () => draw(); img.src = src; BG_IMGS[src] = img;
-  }));
+  });
   markPickers = () => {
+    cargarFondos();
     document.querySelectorAll("#bgPick button").forEach(x => {
       x.classList.toggle("on", x.dataset.id === bgId);
       x.querySelector("img").src = curDiv().src[x.dataset.id];
