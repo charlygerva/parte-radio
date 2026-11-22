@@ -178,6 +178,9 @@
   .divpick button{flex:1;min-height:40px;padding:6px 8px;font-size:13.5px;line-height:1.15}
   .bgpick button{flex:1;padding:6px;gap:8px;justify-content:flex-start;min-height:52px;font-size:14px}
   .bgpick img{width:40px;height:40px;border-radius:7px;object-fit:cover;border:1px solid var(--line)}
+  /* Escudos y miniaturas de fondo: no se pueden guardar ni arrastrar (diseños propios) */
+  .hd-esc,.bgpick img,.canvas-wrap{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+  .hd-esc,.bgpick img{pointer-events:none}
   .bgpick button.on::after{content:"✓";margin-left:auto;padding-right:6px;font-weight:800;color:var(--flu);text-shadow:0 0 8px var(--flu-soft)}
   .req{color:var(--flu)}
   .opt{font-weight:400}
@@ -200,6 +203,29 @@
   .bar .wa{flex:1;font-size:15.5px;min-height:50px;padding:8px 10px}
   .bar .newp{flex:none;flex-direction:column;gap:0;min-height:50px;padding:4px 12px;font-size:13px;line-height:1.15;color:#ff6b8a;
     border-color:rgba(255,107,138,.55);background:rgba(255,59,92,.10);box-shadow:0 0 10px rgba(255,59,92,.25)}
+  .lock{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:20px;
+    background:radial-gradient(120% 70% at 50% 0%, rgba(31,245,214,.16), transparent 60%), #000}
+  .lock.on{display:flex}
+  .lock-box{width:100%;max-width:360px;text-align:center;padding:22px 18px;border-radius:18px;border:1px solid rgba(31,245,214,.55);
+    background:rgba(10,4,22,.96);box-shadow:0 0 26px rgba(31,245,214,.25)}
+  .lock-ico{width:92px;height:92px;border-radius:22px;-webkit-touch-callout:none;pointer-events:none;box-shadow:0 0 18px rgba(31,245,214,.45)}
+  .lock h2{font-family:var(--display);font-size:22px;margin:12px 0 4px;color:#fff}
+  .lock p{margin:6px 0;color:var(--muted);font-size:14px;line-height:1.4}
+  .lock textarea{min-height:84px;font:13px/1.35 ui-monospace,Menlo,Consolas,monospace;word-break:break-all;text-align:center;margin:12px 0 10px;resize:none}
+  .lock #lockBtn{flex:1;min-height:48px;font-size:16px}
+  /* Punto 5: usuarios con acceso */
+  .acclist{display:grid;grid-template-columns:1fr;gap:6px}
+  .acc{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 12px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.03);min-height:46px}
+  .acc label{flex:1;display:flex;align-items:center;gap:10px;min-width:0;font-size:14px;cursor:pointer}
+  .acc label span{overflow:hidden;text-overflow:ellipsis}
+  .acc input{width:20px;height:20px;flex:none;accent-color:#1ff5d6}
+  .acc.on{border-color:#1ff5d6;background:rgba(31,245,214,.10);box-shadow:0 0 10px rgba(31,245,214,.25)}
+  .acc.on label{font-weight:700;color:#fff}
+  .acc .send{flex:none;min-height:34px;padding:4px 10px;font-size:13px;background:linear-gradient(180deg,#27d466,#14a64a);border-color:#4cf08a;color:#04210f;font-weight:800}
+  .acc .del{flex:none;width:34px;min-height:34px;padding:0;font-size:15px;color:#ff6b8a;border-color:rgba(255,107,138,.45);background:transparent}
+  .lock-msg{min-height:20px;color:#ff6b8a !important;font-weight:600}
+  .lock-msg.ok{color:#1ff5d6 !important}
+  .lock-pie{font-size:12.5px !important}
   .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;
     background:rgba(28,8,52,.95);border:1px solid var(--neon);color:#fff;padding:10px 14px;border-radius:12px;font-size:14px;z-index:50;transition:.25s;
     pointer-events:none;max-width:90vw;text-align:center;box-shadow:0 0 18px rgba(196,92,255,.45)}
@@ -227,10 +253,10 @@
     </div>
     <div class="hd-escudos">
       <!-- Orden jerárquico: Policía de la Provincia > D.G.T.I.A.E. > Tecnologías y Telecomunicaciones > División -->
-      <span class="esc-wrap"><img class="hd-esc hd-esc-r" src="escudo-cba.png" alt="Escudo Policía de la Provincia de Córdoba"></span>
-      <span class="esc-wrap"><img class="hd-esc hd-esc-r" src="escudo-dgtiae.png" alt="Escudo oficial D.G.T.I.A.E."></span>
-      <span class="esc-wrap"><img class="hd-esc hd-esc-r" src="escudo-tyt2.png" alt="Escudo Tecnologías y Telecomunicaciones"></span>
-      <span class="esc-wrap"><img class="hd-esc" src="escudo-antenista.png" alt="Escudo antenista"></span>
+      <span class="esc-wrap"><img class="hd-esc hd-esc-r" data-res="escudo-cba.png" draggable="false" alt="Escudo Policía de la Provincia de Córdoba"></span>
+      <span class="esc-wrap"><img class="hd-esc hd-esc-r" data-res="escudo-dgtiae.png" draggable="false" alt="Escudo oficial D.G.T.I.A.E."></span>
+      <span class="esc-wrap"><img class="hd-esc hd-esc-r" data-res="escudo-tyt2.png" draggable="false" alt="Escudo Tecnologías y Telecomunicaciones"></span>
+      <span class="esc-wrap"><img class="hd-esc" data-res="escudo-antenista.png" draggable="false" alt="Escudo antenista"></span>
     </div>
   </div>
 </header>
@@ -356,9 +382,21 @@
     <textarea id="personal" rows="2" style="min-height:60px" placeholder="Si no está en la lista, escribilo acá"></textarea>
     <label class="chk"><input type="checkbox" id="persTitulo"><span>Poner el título <b>“PERSONAL INTERVINIENTE:”</b> arriba del personal</span></label>
   </section>
+
+  <!-- 5. CÓDIGOS DE ACCESO (solo en la app master) -->
+  <section class="card" id="panelMaster" style="display:none">
+    <h2><span class="step">5</span> Códigos de acceso <span class="counter" id="accCount"></span></h2>
+    <p class="hint" id="accPer" style="margin:-4px 2px 10px"></p>
+    <div class="acclist" id="accList"></div>
+    <label class="f" for="accNuevo">Agregar usuario</label>
+    <div class="fieldrow">
+      <input type="text" id="accNuevo" placeholder="Grado y nombre" autocomplete="off">
+      <button type="button" id="accAgregar" class="primary" style="flex:none">Agregar</button>
+    </div>
+  </section>
 </main>
 
-<p class="pie">App by Charly Gervasoni - Versión 46 - 22/11/2026</p>
+<p class="pie">App by Charly Gervasoni - Versión 47 - 22/11/2026<span id="licPie"></span></p>
 
 <div class="bar"><div class="inner">
   <button id="btnNew" class="newp" title="Borra fotos y novedades"><span>Nuevo</span><span>parte</span></button>
@@ -366,6 +404,22 @@
 </div></div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Código de acceso: la app no se usa sin un código válido -->
+<div class="lock on" id="lock">
+  <div class="lock-box">
+    <img class="lock-ico" src="icono-192.png" alt="" draggable="false">
+    <h2>Telecom Partes</h2>
+    <p>Para usar la app pegá el código de acceso que te mandaron por WhatsApp.</p>
+    <textarea id="lockCod" rows="3" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="Pegá acá tu código"></textarea>
+    <div class="row" style="flex-wrap:nowrap">
+      <button id="lockPegar" type="button" style="flex:none;min-height:48px">📋 Pegar</button>
+      <button id="lockBtn" class="primary">Activar</button>
+    </div>
+    <p class="lock-msg" id="lockMsg"></p>
+    <p class="lock-pie">¿No tenés código? Pedíselo a Charly Gervasoni.</p>
+  </div>
+</div>
 
 <!-- Hoja de envío (cuando el teléfono no permite compartir directo) -->
 <div class="modal" id="modal">
@@ -474,7 +528,9 @@
   // ---------- Estado ----------
   const $ = id => document.getElementById(id);
   const cv = $("cv"), ctx = cv.getContext("2d");
-  const BG_IMGS = {};
+  const BG_IMGS = {};      // fondos ya cargados, por nombre
+  const RES = {};          // nombre → dirección interna (blob:) de cada imagen del paquete
+  const res = n => RES[n] || (n && n.startsWith("data:") ? n : "");
   let soloTexto = false;    // "Solo texto": no se dibuja la imagen (ahorra trabajo al celular)
   let bgId = "oscuro", divId = "radio";
   let seccion = "";   // "oce" | "str" (Radio) · "tt" | "stt" (Telefonía) · "" = ninguna
@@ -556,7 +612,7 @@
   // ---------- Dibujo ----------
   function render(c, forExport) {
     c.clearRect(0, 0, W, H);
-    const bg = curBG(), BG = BG_IMGS[bg.src];
+    const bg = curBG(), BG = BG_IMGS[bg.src];   // bg.src = nombre del fondo
     if (BG && BG.complete && BG.naturalWidth) c.drawImage(BG, 0, 0, W, H);
     const s = settings(), cs = cells();
     if (!photos.length && !forExport) {
@@ -1147,6 +1203,226 @@
     window.addEventListener("appinstalled", () => { $("install").classList.remove("on"); toast("App instalada ✓"); });
   }
 
+  // ---------- Paquete de imágenes ----------
+  async function cargarRecursos() {
+    if (!IS_PWA_BUILD) return;
+    const r = await fetch("recursos.bin"); if (!r.ok) throw new Error("recursos " + r.status);
+    const b = new Uint8Array(await r.arrayBuffer()), n = b.length;
+    let x = 0x7E1E5C0D;
+    for (let i = 4; i < n; i += 4) {
+      x ^= x << 13; x >>>= 0; x ^= x >>> 17; x ^= x << 5; x >>>= 0;
+      b[i] ^= x & 255; if (i + 1 < n) b[i + 1] ^= (x >>> 8) & 255; if (i + 2 < n) b[i + 2] ^= (x >>> 16) & 255; if (i + 3 < n) b[i + 3] ^= x >>> 24;
+    }
+    const hl = b[0] | b[1] << 8 | b[2] << 16 | b[3] << 24;
+    let off = 4 + hl;
+    for (const [name, len, mime] of JSON.parse(new TextDecoder().decode(b.subarray(4, off)))) {
+      RES[name] = URL.createObjectURL(new Blob([b.subarray(off, off + len)], { type: mime })); off += len;
+    }
+  }
+
+  // ---------- Código de acceso ----------
+  // Los códigos los firma la app master con la clave maestra (solo la tiene Charly).
+  // Las demás apps solo tienen la clave pública: pueden comprobar un código, pero no inventarlo.
+  // Cada código vale 3 meses: del día 10 al día 9, tres meses después (ese día 10 vence).
+  // Períodos: 10/11 → 10/02 → 10/05 → 10/08 → 10/11 (el primero, 10/11/2026 al 09/02/2027, es el gratis).
+  const LIC_PUB = {"x": "2Te95_RUdtHo_sPKSEI_wkcuyUqHsT3l_7AJrSNiLyg", "y": "rEstl4BABBaCOsyHsDNFNYghrzZ5NZLBfhbcLdh4tMY"};
+  const B32 = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const normCod = c => (c || "").toUpperCase().replace(/[^A-Z0-9]/g, "");
+  // Busca el código dentro de lo pegado (puede venir el mensaje entero de WhatsApp)
+  const extraerCod = t => {
+    const u = (t || "").toUpperCase().replace(/[\s\u200B-\u200D\uFEFF]+/g, "");
+    const m = u.match(/TPM(?:-?[A-Z0-9]){52}/) || u.match(/TP-?[A-Z0-9]{100,}/);
+    return m ? m[0] : t;
+  };
+  function b32enc(bytes) {
+    let v = 0, bits = 0, out = "";
+    for (const x of bytes) { v = (v << 8) | x; bits += 8; while (bits >= 5) { out += B32[(v >>> (bits - 5)) & 31]; bits -= 5; } v &= (1 << bits) - 1; }
+    if (bits) out += B32[(v << (5 - bits)) & 31];
+    return out;
+  }
+  function b32dec(str) {
+    let v = 0, bits = 0; const out = [];
+    for (const ch of str) { const k = B32.indexOf(ch); if (k < 0) return null; v = (v << 5) | k; bits += 5; if (bits >= 8) { out.push((v >>> (bits - 8)) & 255); bits -= 8; } v &= (1 << bits) - 1; }
+    return new Uint8Array(out);
+  }
+  const b64u = b => btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const ECDSA = { name: "ECDSA", hash: "SHA-256" };
+  const MESES_PER = 3;
+  const periodoDe = (f = new Date()) => {            // N° de período = año*12 + mes en que empezó (feb, may, ago o nov)
+    let t = f.getFullYear() * 12 + f.getMonth(); if (f.getDate() < 10) t--;
+    return t - (((t % 12) - 1) % MESES_PER + MESES_PER) % MESES_PER;
+  };
+  const finPer = p => new Date(Math.floor(p / 12), p % 12 + MESES_PER, 10);  // ese día a las 00:00 vence
+  const iniPer = p => new Date(Math.floor(p / 12), p % 12, 10);
+  const fmtF = d => String(d.getDate()).padStart(2, "0") + "/" + String(d.getMonth() + 1).padStart(2, "0") + "/" + d.getFullYear();
+  const ultDia = p => { const d = finPer(p); d.setDate(d.getDate() - 1); return d; };
+  let pubKey = null;
+  const getPub = async () => pubKey || (pubKey = await crypto.subtle.importKey("jwk",
+    { kty: "EC", crv: "P-256", x: LIC_PUB.x, y: LIC_PUB.y, ext: true }, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]));
+  async function leerCodigo(cod) {          // → { p: período, u: N° de usuario } si la firma es válida
+    let s = normCod(cod); if (s.startsWith("TP")) s = s.slice(2);
+    const b = b32dec(s); if (!b || b.length !== 69 || b[0] !== 2) return null;
+    const ok = await crypto.subtle.verify(ECDSA, await getPub(), b.slice(5), b.slice(0, 5));
+    return ok ? { p: b[1] << 8 | b[2], u: b[3] << 8 | b[4] } : null;
+  }
+  async function cargarMaestra(clave) {     // "TPM-…" → llave para firmar, o null
+    const s = normCod(clave); if (!s.startsWith("TPM")) return null;
+    const d = b32dec(s.slice(3)); if (!d || d.length !== 32) return null;
+    try {
+      const k = await crypto.subtle.importKey("jwk", { kty: "EC", crv: "P-256", x: LIC_PUB.x, y: LIC_PUB.y, d: b64u(d), ext: true },
+        { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+      const t = new Uint8Array([7, 7, 7]), sig = await crypto.subtle.sign(ECDSA, k, t);
+      return (await crypto.subtle.verify(ECDSA, await getPub(), sig, t)) ? k : null;
+    } catch (e) { return null; }
+  }
+  let masterKey = null;
+  async function generarCodigo(p, u) {
+    const pay = new Uint8Array([2, p >> 8, p & 255, u >> 8, u & 255]);
+    const sig = new Uint8Array(await crypto.subtle.sign(ECDSA, masterKey, pay));
+    const all = new Uint8Array(69); all.set(pay); all.set(sig, 5);
+    return "TP-" + b32enc(all);
+  }
+  async function bajas() {                  // lista de bajas inmediatas (licencias.json en GitHub); null sin internet
+    try {
+      const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 6000);
+      const r = await fetch("licencias.json?t=" + Date.now(), { cache: "no-store", signal: ctl.signal }); clearTimeout(tm);
+      if (!r.ok) return null; const j = await r.json(); return Array.isArray(j.bajas) ? j.bajas : null;
+    } catch (e) { return null; }
+  }
+  function mostrarLic(txt) { $("licPie").textContent = txt ? " - " + txt : ""; }
+  function bloquear(msg) { $("lock").classList.add("on"); $("lockMsg").className = "lock-msg"; $("lockMsg").textContent = msg || ""; }
+  function desbloquear() { $("lock").classList.remove("on"); }
+  async function verificarLicencia() {
+    const clave = store.get("maestra", "");
+    if (clave) {
+      desbloquear();
+      masterKey = await cargarMaestra(clave);
+      if (masterKey) { mostrarLic("App master"); abrirMaster(); return; }
+      store.set("maestra", "");
+    }
+    const lic = store.get("lic", null);
+    if (!lic) { bloquear(""); return; }
+    if (lic.p !== periodoDe()) {
+      bloquear("Tu código venció el " + fmtF(finPer(lic.p)) + ". Pedí el código nuevo a Charly Gervasoni."); return;
+    }
+    desbloquear(); mostrarLic("Usuario N° " + lic.u + " - vence " + fmtF(finPer(lic.p)));
+    const bl = await bajas();
+    if (bl && bl.includes(lic.p + "-" + lic.u)) { store.set("lic", null); mostrarLic(""); bloquear("Tu acceso fue dado de baja. Consultá con Charly Gervasoni."); }
+  }
+  async function activar() {
+    const cod = extraerCod($("lockCod").value);
+    if (normCod(cod).length < 20) { bloquear("Pegá el código completo."); return; }
+    $("lockBtn").disabled = true; $("lockMsg").className = "lock-msg ok"; $("lockMsg").textContent = "Verificando…";
+    try {
+      const mk = await cargarMaestra(cod);
+      if (mk) {
+        masterKey = mk; store.set("maestra", normCod(cod)); store.set("lic", null);
+        desbloquear(); mostrarLic("App master"); abrirMaster(); $("lockCod").value = ""; toast("App master activada ✓"); return;
+      }
+      const c = await leerCodigo(cod);
+      if (!c) { bloquear("Código incorrecto. Copialo completo del mensaje y probá de nuevo."); return; }
+      if (c.p !== periodoDe()) { bloquear(c.p < periodoDe() ? "Ese código ya venció. Pedí el código nuevo a Charly Gervasoni." : "Ese código todavía no está vigente."); return; }
+      const bl = await bajas();
+      if (bl && bl.includes(c.p + "-" + c.u)) { bloquear("Ese código fue dado de baja."); return; }
+      store.set("lic", c); desbloquear(); $("lockCod").value = "";
+      mostrarLic("Usuario N° " + c.u + " - vence " + fmtF(finPer(c.p))); toast("App activada ✓ (vale hasta el " + fmtF(ultDia(c.p)) + ")");
+    } catch (e) {
+      bloquear("No se pudo verificar. Probá de nuevo.");
+    } finally { $("lockBtn").disabled = false; }
+  }
+  $("lockBtn").addEventListener("click", activar);
+  $("lockPegar").addEventListener("click", async () => {
+    try { const t = await navigator.clipboard.readText(); if (t) { $("lockCod").value = t.trim(); activar(); } }
+    catch (e) { $("lockCod").focus(); toast("Mantené apretado el cuadro y elegí “Pegar”"); }
+  });
+  // Link de activación (…/#c=TP-…): abre la app con el código ya cargado
+  if (/^#c=/.test(location.hash)) {
+    $("lockCod").value = decodeURIComponent(location.hash.slice(3));
+    history.replaceState(null, "", location.pathname + location.search);
+    setTimeout(activar, 0);
+  }
+  // Si la app queda abierta y pasa el día 10, se vuelve a controlar
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    const lic = store.get("lic", null);
+    if (!masterKey && lic && lic.p !== periodoDe()) verificarLicencia();
+    if (masterKey) renderAccesos();
+  });
+
+  // ---------- Punto 5: códigos de acceso (solo app master) ----------
+  const MAX_USUARIOS = 100;
+  function usuarios() {
+    let us = store.get("usuarios", null);
+    if (!us) { us = PERSONAL_LIST.map((n, i) => ({ id: i + 1, n })); store.set("usuarios", us); store.set("usuarioSig", us.length + 1); }
+    return us;
+  }
+  function accesos() {                     // casillas del período actual; el día 10 arrancan todas destildadas
+    const p = periodoDe(); let a = store.get("accesos", null);
+    if (!a || a.p !== p) { a = { p, cod: {} }; store.set("accesos", a); }
+    return a;
+  }
+  function abrirMaster() { $("panelMaster").style.display = ""; renderAccesos(); }
+  function mensajeCodigo(nombre, cod, p) {
+    const link = location.origin + location.pathname + "#c=" + cod;
+    return "Telecom Partes – código de acceso para " + nombre + "\nVale hasta el " + fmtF(ultDia(p)) + " inclusive.\n\n" + cod +
+      "\n\nAbrí la app, tocá “📋 Pegar” (o pegalo en el cuadro) y después “Activar”.\nEn Android también podés tocar este link:\n" + link;
+  }
+  let borrarArmado = { id: 0, t: 0 };
+  function renderAccesos() {
+    if (!masterKey) return;
+    const us = usuarios(), a = accesos(), p = a.p;
+    $("accPer").textContent = "Período del " + fmtF(iniPer(p)) + " al " + fmtF(ultDia(p)) + ". El " + fmtF(finPer(p)) + " vencen todos los códigos y se destildan las casillas.";
+    const k = Object.keys(a.cod).length;
+    $("accCount").textContent = k + " / " + us.length;
+    $("accList").innerHTML = "";
+    us.forEach(u => {
+      const row = document.createElement("div"); row.className = "acc" + (a.cod[u.id] ? " on" : "");
+      const lab = document.createElement("label");
+      const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!a.cod[u.id];
+      const nm = document.createElement("span"); nm.textContent = u.n;
+      lab.append(cb, nm); row.appendChild(lab);
+      cb.addEventListener("change", async () => {
+        const a2 = accesos();
+        if (cb.checked) { a2.cod[u.id] = await generarCodigo(a2.p, u.id); toast("Código generado: tocá “Enviar” para mandárselo"); }
+        else { delete a2.cod[u.id]; toast("Sin acceso. El código que ya tenga vale hasta el " + fmtF(ultDia(a2.p)), 4000); }
+        store.set("accesos", a2); renderAccesos();
+      });
+      if (a.cod[u.id]) {
+        const env = document.createElement("button"); env.type = "button"; env.className = "send"; env.textContent = "Enviar";
+        env.addEventListener("click", () => {
+          const txt = mensajeCodigo(u.n, accesos().cod[u.id], p);
+          try { navigator.clipboard.writeText(txt).catch(() => {}); } catch (e) {}
+          sendTextOnly(txt);
+        });
+        row.appendChild(env);
+      }
+      const del = document.createElement("button"); del.type = "button"; del.className = "del"; del.textContent = "✕"; del.title = "Quitar usuario";
+      del.addEventListener("click", () => {
+        if (borrarArmado.id !== u.id || Date.now() - borrarArmado.t > 3000) { borrarArmado = { id: u.id, t: Date.now() }; toast("Tocá ✕ de nuevo para quitar a " + u.n); return; }
+        store.set("usuarios", usuarios().filter(x => x.id !== u.id));
+        const a2 = accesos(); delete a2.cod[u.id]; store.set("accesos", a2);
+        toast("Usuario quitado"); renderAccesos();
+      });
+      row.appendChild(del);
+      $("accList").appendChild(row);
+    });
+  }
+  $("accAgregar").addEventListener("click", () => {
+    const n = $("accNuevo").value.trim(); if (!n) { $("accNuevo").focus(); return; }
+    const us = usuarios();
+    if (us.length >= MAX_USUARIOS) { toast("Llegaste al máximo de " + MAX_USUARIOS + " usuarios"); return; }
+    const id = store.get("usuarioSig", us.length + 1);
+    us.push({ id, n }); store.set("usuarios", us); store.set("usuarioSig", id + 1);
+    $("accNuevo").value = ""; toast("Agregado: " + n); renderAccesos();
+  });
+  $("accNuevo").addEventListener("keydown", e => { if (e.key === "Enter") $("accAgregar").click(); });
+
+  // ---------- Protección de los diseños ----------
+  document.addEventListener("contextmenu", e => {
+    if (e.target.closest && e.target.closest("header, #bgPick, .canvas-wrap")) e.preventDefault();
+  });
+  document.addEventListener("dragstart", e => { if (e.target.tagName === "IMG" && !e.target.closest("#modal")) e.preventDefault(); });
+
   // ---------- Inicio ----------
   loadFields(); refreshPreview();
   // Siempre arranca con fondo negro y "Con imagen"
@@ -1156,15 +1432,15 @@
   seccion = store.get("seccion", "");
   // Se cargan solo los fondos de la división elegida (los demás, cuando se eligen)
   const cargarFondos = () => BACKGROUNDS.forEach(b => {
-    const src = curDiv().src[b.id];
-    if (BG_IMGS[src]) return;
-    const img = new Image(); img.onload = () => draw(); img.src = src; BG_IMGS[src] = img;
+    const name = curDiv().src[b.id], src = res(name);
+    if (!src || BG_IMGS[name]) return;
+    const img = new Image(); img.onload = () => draw(); img.src = src; BG_IMGS[name] = img;
   });
   markPickers = () => {
     cargarFondos();
     document.querySelectorAll("#bgPick button").forEach(x => {
       x.classList.toggle("on", x.dataset.id === bgId);
-      x.querySelector("img").src = curDiv().src[x.dataset.id];
+      const t = res(curDiv().src[x.dataset.id]); if (t) x.querySelector("img").src = t;
     });
     // La sección tildada solo vale para su división: si se cambia de división, se destilda
     if (seccion && !curSecc()) { seccion = ""; store.set("seccion", ""); }
@@ -1177,7 +1453,7 @@
   BACKGROUNDS.forEach(b => {
     const btn = document.createElement("button");
     btn.type = "button"; btn.dataset.id = b.id;
-    btn.innerHTML = "<img alt=\"\" src=\"" + curDiv().src[b.id] + "\"><span>" + b.name + "</span>";
+    btn.innerHTML = "<img alt=\"\" draggable=\"false\"><span>" + b.name + "</span>";
     btn.addEventListener("click", () => { bgId = b.id; store.set("fondo", bgId); markPickers(); draw(); });
     $("bgPick").appendChild(btn);
   });
@@ -1207,6 +1483,12 @@
   markPickers(); aplicarDivisionSegunPersonal(false); refreshPreview();
   setMode(true);  // la app arranca en "Solo texto"
   updateUI();
+  // Escudos y fondos: vienen en un paquete codificado (no hay archivos de imagen sueltos para bajar)
+  cargarRecursos().catch(() => {}).then(() => {
+    document.querySelectorAll("img[data-res]").forEach(i => { const u = res(i.dataset.res); if (u) i.src = u; });
+    markPickers(); draw();
+  });
+  verificarLicencia();
 })();
 </script>
 </body>
