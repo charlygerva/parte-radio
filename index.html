@@ -97,6 +97,27 @@
   input:focus,textarea:focus{outline:none;border-color:var(--neon);background:rgba(196,92,255,.07);box-shadow:0 0 0 3px rgba(196,92,255,.18), 0 0 16px rgba(196,92,255,.25)}
   .upper{text-transform:uppercase}
   .iconpick{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center}
+  /* Campo + botón de ícono (carita) a la derecha */
+  .fieldrow{display:flex;gap:8px;align-items:stretch}
+  .fieldrow > input,.fieldrow > textarea{flex:1;min-width:0;width:auto}
+  .fieldrow.top{align-items:flex-start}
+  .emo-btn{flex:none;position:relative;width:46px;min-height:46px;padding:0;font-size:22px;border-radius:11px;color:var(--c);
+    border:1px solid var(--c);background:var(--g2);box-shadow:0 0 10px var(--g), inset 0 0 8px var(--g2)}
+  .emo-btn svg{width:26px;height:26px;filter:drop-shadow(0 0 3px var(--g))}
+  .emo-btn.sm{margin-left:auto;width:40px;height:40px;min-height:40px}
+  .emo-btn.sm svg{width:23px;height:23px}
+  .emo-btn.on{background:var(--g);box-shadow:0 0 18px var(--c), inset 0 0 10px var(--g)}
+  .emo-badge{position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;font-size:12.5px;line-height:1;
+    display:grid;place-items:center;background:#14032a;border:1px solid var(--c);box-shadow:0 0 6px var(--g)}
+  .e-fecha{--c:#ff3b5c;--g:rgba(255,59,92,.45);--g2:rgba(255,59,92,.12)}
+  .e-titulo{--c:#f4ff3a;--g:rgba(244,255,58,.40);--g2:rgba(244,255,58,.10)}
+  .e-lugar{--c:#3ee8ff;--g:rgba(62,232,255,.45);--g2:rgba(62,232,255,.12)}
+  .e-contenido{--c:#ff4fe0;--g:rgba(255,43,214,.45);--g2:rgba(255,43,214,.12)}
+  .e-pers{--c:#1ff5d6;--g:rgba(31,245,214,.45);--g2:rgba(31,245,214,.12)}
+  /* Copiar texto: botoncito cuadrado amarillo flúor junto al título de la vista previa */
+  .mini-copy{margin-left:auto;flex:none;width:36px;height:36px;min-height:36px;padding:0;border-radius:9px;color:var(--flu);
+    border:1px solid var(--flu);background:rgba(244,255,58,.10);box-shadow:0 0 10px var(--flu-soft), inset 0 0 6px rgba(244,255,58,.12)}
+  .mini-copy:active{background:rgba(244,255,58,.28)}
   .iconpick .lbl{font-size:12px;color:var(--muted);margin-right:2px}
   .iconpick button{min-height:34px;padding:4px 10px;font-size:15px;font-weight:600}
   .iconpick button.on,.emogrid button.on,.modepick button.on,.divpick button.on,.bgpick button.on{
@@ -176,7 +197,9 @@
   .bar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(8,2,18,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     border-top:1px solid var(--neon-soft);box-shadow:0 -8px 24px rgba(0,0,0,.6);padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
   .bar .inner{max-width:600px;margin:0 auto;display:flex;gap:8px}
-  .bar .wa{flex:1;font-size:16px;min-height:50px}
+  .bar .wa{flex:1;font-size:15.5px;min-height:50px;padding:8px 10px}
+  .bar .newp{flex:none;flex-direction:column;gap:0;min-height:50px;padding:4px 12px;font-size:13px;line-height:1.15;color:#ff6b8a;
+    border-color:rgba(255,107,138,.55);background:rgba(255,59,92,.10);box-shadow:0 0 10px rgba(255,59,92,.25)}
   .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;
     background:rgba(28,8,52,.95);border:1px solid var(--neon);color:#fff;padding:10px 14px;border-radius:12px;font-size:14px;z-index:50;transition:.25s;
     pointer-events:none;max-width:90vw;text-align:center;box-shadow:0 0 18px rgba(196,92,255,.45)}
@@ -275,23 +298,55 @@
     <h2><span class="step">2</span> Datos del parte</h2>
 
     <label class="f" for="fecha">Fecha <span class="req">*</span></label>
-    <input type="date" id="fecha" required>
+    <div class="fieldrow">
+      <input type="date" id="fecha" required>
+      <button type="button" class="emo-btn e-fecha" id="emo_fecha" aria-label="Ícono de la fecha"></button>
+    </div>
     <div class="iconpick" id="iconFecha"></div>
 
     <label class="f" for="titulo">Título del parte <span class="opt">(opcional)</span></label>
-    <input type="text" id="titulo" class="upper" placeholder="Ej: INSTALACIÓN DE EQUIPO BASE" autocomplete="off">
+    <div class="fieldrow">
+      <input type="text" id="titulo" class="upper" placeholder="Ej: INSTALACIÓN DE EQUIPO BASE" autocomplete="off">
+      <button type="button" class="emo-btn e-titulo" id="emo_titulo" aria-label="Ícono del título"></button>
+    </div>
     <div class="iconpick" id="iconTitulo"></div>
 
     <label class="f" for="lugar">Lugar / dependencia <span class="opt">(opcional)</span></label>
-    <input type="text" id="lugar" class="upper" list="lugares" placeholder="Ej: COMISARIA 4TA" autocomplete="off">
+    <div class="fieldrow">
+      <input type="text" id="lugar" class="upper" list="lugares" placeholder="Ej: COMISARIA 4TA" autocomplete="off">
+      <button type="button" class="emo-btn e-lugar" id="emo_lugar" aria-label="Ícono del lugar"></button>
+    </div>
     <datalist id="lugares"></datalist>
     <div class="iconpick" id="iconLugar"></div>
 
     <label class="f" for="contenido">Contenido del parte <span class="req">*</span></label>
-    <textarea id="contenido" rows="6" required placeholder="Se realiza la instalación de equipo base en oficina de guardia quedando en svc.&#10;Se retira xtl5000 fuera de svc..."></textarea>
+    <div class="fieldrow top">
+      <textarea id="contenido" rows="3" required placeholder="Se realiza instalación de equipo"></textarea>
+      <button type="button" class="emo-btn e-contenido" id="emo_contenido" aria-label="Ícono del contenido"></button>
+    </div>
     <div class="iconpick" id="iconContenido"></div>
+  </section>
 
-    <label class="f">Personal interviniente <span class="opt">(opcional, tocá para elegir)</span></label>
+  <!-- 3. VISTA PREVIA -->
+  <section class="card">
+    <h2><span class="step">3</span> Vista previa del mensaje
+      <button type="button" id="btnCopy" class="mini-copy" aria-label="Copiar texto" title="Copiar texto">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15"/></svg>
+      </button>
+    </h2>
+    <pre class="preview" id="preview"></pre>
+    <div class="row" style="margin-top:10px">
+      <button id="btnSave" class="grow">⤓ Guardar imagen</button>
+    </div>
+  </section>
+
+  <!-- 4. PERSONAL INTERVINIENTE -->
+  <section class="card">
+    <h2><span class="step">4</span> Personal interviniente
+      <button type="button" class="emo-btn sm e-pers" id="emo_pers" aria-label="Ícono del título del personal"></button>
+    </h2>
+    <div class="iconpick" id="iconPers" style="margin:-4px 0 10px"></div>
+    <label class="f" style="margin-top:0">Personal <span class="opt">(opcional, tocá para elegir)</span></label>
     <div class="perslist" id="persList"></div>
     <div class="row" style="margin-top:6px;justify-content:space-between">
       <span class="layoutinfo" id="persCount">Nadie seleccionado</span>
@@ -300,27 +355,13 @@
     <label class="f" for="personal">Otro personal <span class="opt">(opcional, uno por línea)</span></label>
     <textarea id="personal" rows="2" style="min-height:60px" placeholder="Si no está en la lista, escribilo acá"></textarea>
     <label class="chk"><input type="checkbox" id="persTitulo"><span>Poner el título <b>“PERSONAL INTERVINIENTE:”</b> arriba del personal</span></label>
-    <div class="iconpick" id="iconPers"></div>
-
-  </section>
-
-  <!-- 3. VISTA PREVIA -->
-  <section class="card">
-    <h2><span class="step">3</span> Vista previa del mensaje</h2>
-    <pre class="preview" id="preview"></pre>
-    <div class="row" style="margin-top:10px">
-      <button id="btnCopy" class="grow">⧉ Copiar texto</button>
-      <button id="btnSave" class="grow">⤓ Guardar imagen</button>
-    </div>
-    <div class="row" style="margin-top:8px">
-      <button id="btnNew" class="grow danger">Nuevo parte (borrar fotos y novedades)</button>
-    </div>
   </section>
 </main>
 
-<p class="pie">App by Charly Gervasoni - Versión 41 - 22/11/2026</p>
+<p class="pie">App by Charly Gervasoni - Versión 43 - 22/11/2026</p>
 
 <div class="bar"><div class="inner">
+  <button id="btnNew" class="newp" title="Borra fotos y novedades"><span>Nuevo</span><span>parte</span></button>
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
 </div></div>
 
@@ -800,18 +841,23 @@
     const m = iconMode[id];
     return m === "auto" ? autoIcon(id) : m === "none" ? "" : m;
   }
+  // Carita solo con contorno: toma el color del botón (currentColor)
+  const CARITA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="9.5"/><path d="M7.8 14.2c1 1.6 2.5 2.4 4.2 2.4s3.2-.8 4.2-2.4"/>' +
+    '<circle cx="9" cy="9.6" r="1.15" fill="currentColor" stroke="none"/><circle cx="15" cy="9.6" r="1.15" fill="currentColor" stroke="none"/></svg>';
   function renderIconPicks() {
     // [campo, caja, ¿tiene Auto?, íconos disponibles]
     [["fecha", "iconFecha", false, ICONOS_FECHA], ["titulo", "iconTitulo", true, ICONOS], ["lugar", "iconLugar", true, ICONOS], ["contenido", "iconContenido", true, ICONOS],
      ["pers", "iconPers", false, ICONOS_PERS]].forEach(([id, box, hasAuto, list]) => {
-      const el = $(box);
-      if (id === "pers") el.style.display = $("persTitulo").checked ? "" : "none";
-      el.innerHTML = "<span class=\"lbl\">" + (id === "pers" ? "Ícono del título:" : "Ícono:") + "</span>";
+      const el = $(box), btn = $("emo_" + id);
       const m = iconMode[id];
-      const cur = document.createElement("button"); cur.type = "button"; cur.className = "cur";
-      cur.textContent = (m === "auto" ? "Auto " + autoIcon(id) : m === "none" ? "Sin ícono" : m) + "  ▾";
-      cur.addEventListener("click", () => { pickOpen = pickOpen === id ? null : id; renderIconPicks(); });
-      el.appendChild(cur);
+      // La carita abre la lista; el ícono elegido se ve en el circulito de la esquina
+      const cur = m === "auto" ? autoIcon(id) : m === "none" ? "" : m;
+      btn.innerHTML = CARITA + (cur ? "<span class=\"emo-badge\">" + cur + "</span>" : "");
+      btn.title = "Ícono: " + (m === "auto" ? "Auto " + cur : m === "none" ? "sin ícono" : m);
+      btn.classList.toggle("on", pickOpen === id);
+      el.innerHTML = "";
+      el.style.display = pickOpen === id ? "" : "none";
       if (pickOpen !== id) return;
       const grid = document.createElement("div"); grid.className = "emogrid";
       const add = (val, txt, wide) => {
@@ -819,7 +865,11 @@
         b.className = (wide ? "wide " : "") + (m === val ? "on" : "");
         b.addEventListener("click", () => {
           iconMode[id] = val; pickOpen = null;
-          if (id === "pers") store.set("persIcon", val);
+          if (id === "pers") {
+            store.set("persIcon", val);
+            // Elegir un ícono para el título del personal activa ese título
+            if (val !== "none" && !$("persTitulo").checked) { $("persTitulo").checked = true; store.set("persTitulo", true); }
+          }
           if (id === "fecha") store.set("fechaIcon", val);
           renderIconPicks(); refreshPreview();
         });
@@ -831,6 +881,8 @@
       el.appendChild(grid);
     });
   }
+  ["fecha", "titulo", "lugar", "contenido", "pers"].forEach(id =>
+    $("emo_" + id).addEventListener("click", () => { pickOpen = pickOpen === id ? null : id; renderIconPicks(); }));
   // Vista previa como la muestra WhatsApp (los *asteriscos* se ven en negrita)
   let markPickers = null;
   // División de cada efectivo (por apellido). Se usa para elegir la división sola y para los colores.
@@ -889,7 +941,7 @@
     const k = selectedPersonal().length;
     $("persCount").textContent = k ? (k === 1 ? "1 seleccionado" : k + " seleccionados") : "Nadie seleccionado";
   }
-  $("persTitulo").addEventListener("change", () => { store.set("persTitulo", $("persTitulo").checked); if (pickOpen === "pers") pickOpen = null; refreshPreview(); });
+  $("persTitulo").addEventListener("change", () => { store.set("persTitulo", $("persTitulo").checked); refreshPreview(); });
   $("persClear").addEventListener("click", () => { persSel = []; store.set("persSel", persSel); renderPersonal(); refreshPreview(); });
 
   function refreshPreview() {
@@ -1045,7 +1097,7 @@
 
   let newArmed = 0;
   $("btnNew").addEventListener("click", () => {
-    if (Date.now() - newArmed > 3000) { newArmed = Date.now(); toast("Tocá de nuevo para confirmar"); return; }
+    if (Date.now() - newArmed > 3000) { newArmed = Date.now(); toast("Tocá de nuevo para borrar fotos y novedades"); return; }
     newArmed = 0; rememberLugar();
     photos = []; sel = -1; swapFrom = -1; setMode(true);
     bgId = "oscuro"; if (typeof markPickers === "function") markPickers();
