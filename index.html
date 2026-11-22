@@ -125,8 +125,12 @@
   .bgpick{display:flex;gap:8px;margin-bottom:8px}
   .modepick{display:flex;gap:8px;margin-bottom:10px}
   .modepick button{flex:1;min-height:44px;font-size:14.5px}
-  .divpick{display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap}
-  .divpick .lbl{font-size:12.5px;color:var(--muted);font-weight:700;margin-right:2px}
+  .divpick{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;align-items:stretch}
+  @media (min-width:400px){.divpick{grid-template-columns:repeat(4,1fr)}}
+  /* Depto. Telecom.: rosa flúor */
+  .d-depto{background:rgba(255,43,214,.10) !important;border-color:rgba(255,92,224,.50) !important}
+  .divpick button.on.d-depto{background:rgba(255,43,214,.26) !important;border:1px solid #ff4fe0 !important;color:#fff;
+    box-shadow:0 0 14px rgba(255,43,214,.6), inset 0 0 10px rgba(255,43,214,.2);text-shadow:0 0 8px rgba(255,79,224,.7)}
   .divpick button{flex:1;min-height:40px;padding:6px 8px;font-size:13.5px;line-height:1.15}
   .bgpick button{flex:1;padding:6px;gap:8px;justify-content:flex-start;min-height:52px;font-size:14px}
   .bgpick img{width:40px;height:40px;border-radius:7px;object-fit:cover;border:1px solid var(--line)}
@@ -195,12 +199,13 @@
   <!-- 1. FOTOS -->
   <section class="card">
     <h2><span class="step">1</span> Fotos <span class="counter" id="count">0 / 10</span></h2>
+    <!-- Orden: divisiones arriba, con imagen / solo texto al medio, fondos abajo -->
+    <div class="divpick" id="divPick"></div>
     <div class="modepick" id="modePick">
       <button type="button" data-mode="img" class="on">📷 Con imagen</button>
       <button type="button" data-mode="txt">💬 Solo texto</button>
     </div>
-    <p class="hint" id="txtNote" style="display:none;margin:2px 2px 0">El parte se manda <b>solo con el texto</b>, sin imagen. Para agregar fotos, elegí “Con imagen”.</p>
-    <div class="divpick" id="divPick"><span class="lbl">División:</span></div>
+    <p class="hint" id="txtNote" style="display:none;margin:-4px 2px 8px">El parte se manda <b>solo con el texto</b>, sin imagen. Para agregar fotos, elegí “Con imagen”.</p>
     <div id="photoEditor">
     <div class="bgpick" id="bgPick"></div>
     <div class="canvas-wrap"><canvas id="cv" width="1080" height="1440"></canvas></div>
@@ -287,7 +292,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 29 · 22/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 31 · 22/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -327,6 +332,7 @@
     { id: "claro", name: "Fondo blanco", dark: false }
   ];
   const DIVISIONES = [
+    { id: "depto", name: "Depto. Telecom.", abrev: "DEPTO. TELECOM.", src: { claro: "parte-depto-blanco.jpg", oscuro: "parte-depto.jpg" } },
     { id: "radio", name: "Radio", abrev: "DIV. RADIO", src: { claro: "parte-radio-blanco.jpg", oscuro: "parte-radio.jpg" } },
     { id: "troncalizado", name: "Sitio Troncalizado", abrev: "DIV. SITIO TRONCALIZADO", src: { claro: "parte-troncalizado-blanco.jpg", oscuro: "parte-troncalizado.jpg" } },
     { id: "telefonia", name: "Telefonía", abrev: "DIV. TELEFONÍA", src: { claro: "parte-telefonia-blanco.jpg", oscuro: "parte-telefonia.jpg" } }
