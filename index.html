@@ -9,8 +9,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Parte de Novedades - Departamento Telecomunicaciones</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="192x192" href="escudo-192.png">
-<link rel="apple-touch-icon" href="escudo-apple-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icono-192.png">
+<link rel="apple-touch-icon" href="icono-apple-180.png">
 <meta name="apple-mobile-web-app-title" content="Parte Radio">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
@@ -292,7 +292,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 31 · 22/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 32 · 22/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -818,9 +818,11 @@
     return divs.size === 1 ? [...divs][0] : (divs.size > 1 ? "mezcla" : null);
   }
   function aplicarDivisionSegunPersonal(avisar) {
+    // Con "Depto. Telecom." elegido no se cambia nada: todo el personal pertenece al Departamento.
+    // Si hay personal de distintas divisiones, tampoco: no se pregunta, quien arma el parte decide.
+    if (divId === "depto") return;
     const d = divisionSegunPersonal();
-    if (d === "mezcla") { if (avisar) toast("Hay personal de distintas divisiones: elegí la división arriba, en “División”", 4000); return; }
-    if (!d || d === divId) return;
+    if (d === "mezcla" || !d || d === divId) return;
     divId = d; store.set("division", d);
     if (typeof markPickers === "function") markPickers();
     draw(); refreshPreview();
