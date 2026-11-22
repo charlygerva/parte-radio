@@ -206,6 +206,7 @@
   .lock{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:20px;
     background:radial-gradient(120% 70% at 50% 0%, rgba(31,245,214,.16), transparent 60%), #000}
   .lock.on{display:flex}
+  #instalar{z-index:110}
   .lock-box{width:100%;max-width:360px;text-align:center;padding:22px 18px;border-radius:18px;border:1px solid rgba(31,245,214,.55);
     background:rgba(10,4,22,.96);box-shadow:0 0 26px rgba(31,245,214,.25)}
   .lock-ico{width:92px;height:92px;border-radius:22px;-webkit-touch-callout:none;pointer-events:none;box-shadow:0 0 18px rgba(31,245,214,.45)}
@@ -243,6 +244,11 @@
   .counter{white-space:nowrap;flex:none;font-size:12.5px;color:var(--muted);margin-left:auto;font-family:var(--display)}
   .layoutinfo{font-size:12.5px;color:var(--muted)}
   /* Pie de la app: amarillo flúor neón */
+  .pie-l1{display:block;white-space:nowrap;font-size:min(12.5px, 3.25vw)}
+  .pie-user{display:block;margin-top:3px;font-size:13.5px;letter-spacing:.4px}
+  .pie-user:empty{display:none}
+  .pie-user.m{color:#3ee8ff;text-shadow:0 0 8px rgba(62,232,255,.75), 0 0 2px #3ee8ff}
+  .pie-user.f{color:#ff4fe0;text-shadow:0 0 8px rgba(255,79,224,.75), 0 0 2px #ff4fe0}
   .pie{text-align:center;font-size:12.5px;font-weight:700;letter-spacing:.3px;margin:-90px 0 100px;color:var(--flu);
     text-shadow:0 0 6px rgba(244,255,58,.85), 0 0 16px rgba(244,255,58,.45)}
   @media (prefers-reduced-motion: reduce){*{transition:none !important}}
@@ -265,13 +271,6 @@
 </header>
 
 <main>
-  <div class="install" id="install">
-    <b>📲 Instalá la app en tu celular</b>
-    <div id="installText">Así la abrís desde la pantalla de inicio, como cualquier app.</div>
-    <div class="row">
-      <button id="btnInstall" class="primary grow" style="display:none">Instalar</button>
-      <button id="btnInstallClose" class="grow">Ahora no</button>
-    </div>
   </div>
 
   <!-- 1. DEPENDENCIA Y FORMATO -->
@@ -399,7 +398,7 @@
   </section>
 </main>
 
-<p class="pie">App by Charly Gervasoni - Versión 48 - 22/11/2026<span id="licPie"></span></p>
+<p class="pie"><span class="pie-l1">App by Charly Gervasoni - Versión 49 - 22/11/2026</span><span id="licPie" class="pie-user"></span></p>
 
 <div class="bar"><div class="inner">
   <button id="btnNew" class="newp" title="Borra fotos y novedades"><span>Nuevo</span><span>parte</span></button>
@@ -407,6 +406,18 @@
 </div></div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Abierta desde el link en el navegador: solo se puede instalar (la app se usa instalada) -->
+<div class="lock" id="instalar">
+  <div class="lock-box">
+    <img class="lock-ico" src="icono-192.png" alt="" draggable="false">
+    <h2>Telecom Partes</h2>
+    <p>Esta app se usa instalada en el celular.</p>
+    <button id="instBtn" class="primary" style="width:100%;min-height:52px;font-size:17px;margin-top:10px">📲 Instalar app</button>
+    <p class="lock-msg ok" id="instMsg"></p>
+    <p class="lock-pie" id="instAyuda"></p>
+  </div>
+</div>
 
 <!-- Código de acceso: la app no se usa sin un código válido -->
 <div class="lock on" id="lock">
@@ -535,6 +546,8 @@
   const RES = {};          // nombre → dirección interna (blob:) de cada imagen del paquete
   const res = n => RES[n] || (n && n.startsWith("data:") ? n : "");
   let soloTexto = false;    // "Solo texto": no se dibuja la imagen (ahorra trabajo al celular)
+  let masterKey = null;     // llave para firmar códigos (solo en la app master)
+  let soloInstalar = false; // abierta en el navegador: solo se ofrece instalar la app
   let bgId = "oscuro", divId = "radio";
   let seccion = "";   // "oce" | "str" (Radio) · "tt" | "stt" (Telefonía) · "" = ninguna
   const curSecc = () => (curDiv().secciones || []).find(x => x.id === seccion) || null;
@@ -980,10 +993,12 @@
 
   // Personal seleccionable (se recuerda en cada celular)
   let persSel = [];
-  function selectedPersonal() { return PERSONAL_LIST.filter(n => persSel.includes(n)); }
+  // En la app master, el personal del punto 4 es la lista de usuarios del punto 5 (lo que se agrega o quita ahí, aparece o se va acá)
+  const listaPersonal = () => masterKey ? usuarios().map(u => u.n) : PERSONAL_LIST;
+  function selectedPersonal() { return listaPersonal().filter(n => persSel.includes(n)); }
   function renderPersonal() {
     $("persList").innerHTML = "";
-    PERSONAL_LIST.forEach(n => {
+    listaPersonal().forEach(n => {
       const lab = document.createElement("label");
       const dv = divisionDe(n); if (dv) lab.classList.add("d-" + dv);
       const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = persSel.includes(n);
@@ -1018,7 +1033,7 @@
     // sin fotos, sin título, sin lugar y sin contenido. El personal elegido se recuerda.
     ["titulo", "lugar", "contenido"].forEach(id => { $(id).value = ""; store.set(id, ""); });
     $("personal").value = store.get("personal", "");
-    persSel = store.get("persSel", []).filter(n => PERSONAL_LIST.includes(n));
+    persSel = store.get("persSel", []);
     // Título y su ícono: se recuerdan en cada celular
     $("persTitulo").checked = !!store.get("persTitulo", false);
     // Ícono de la fecha: se recuerda en cada celular (📅 o sin ícono para un parte formal)
@@ -1185,25 +1200,32 @@
         }).catch(() => {});
       });
     }
-    const standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-    const dismissed = store.get("installDismissed", 0) > Date.now() - 7 * 864e5;
-    let deferred = null;
-    window.addEventListener("beforeinstallprompt", e => {
-      e.preventDefault(); deferred = e;
-      if (!standalone && !dismissed) { $("btnInstall").style.display = ""; $("install").classList.add("on"); }
-    });
+    const standalone = ["standalone", "fullscreen", "minimal-ui"].some(m => window.matchMedia("(display-mode: " + m + ")").matches) || navigator.standalone === true;
     const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-    if (isIOS && !standalone && !dismissed) {
-      $("installText").innerHTML = "En iPhone: tocá <b>Compartir</b> (el cuadrado con la flecha) y elegí <b>“Agregar a inicio”</b>.";
-      $("install").classList.add("on");
+    let deferred = null;
+    if (!standalone) {
+      // En el navegador no se puede usar la app: solo instalarla
+      soloInstalar = true;
+      $("instalar").classList.add("on");
+      ["main", ".bar", "#lock", ".pie"].forEach(q => { const el = document.querySelector(q); if (el) { el.inert = true; el.setAttribute("aria-hidden", "true"); } });
+      const ayuda = isIOS
+        ? "En iPhone: abrí este link en <b>Safari</b>, tocá <b>Compartir</b> (el cuadrado con la flecha) y elegí <b>“Agregar a inicio”</b>."
+        : "Si el botón no aparece: tocá <b>⋮</b> (arriba a la derecha) y elegí <b>“Instalar app”</b> o <b>“Agregar a pantalla principal”</b>. Si se abrió dentro de WhatsApp, primero tocá ⋮ → <b>“Abrir en Chrome”</b>.";
+      $("instAyuda").innerHTML = ayuda + "<br><br>Si ya la instalaste, abrila desde el ícono <b>Telecom Partes</b> de tu pantalla de inicio.";
+      if (isIOS) $("instBtn").style.display = "none";
+      $("instBtn").addEventListener("click", async () => {
+        if (!deferred) { $("instMsg").className = "lock-msg"; $("instMsg").innerHTML = "Usá el menú del navegador (mirá abajo)."; return; }
+        deferred.prompt();
+        try { const r = await deferred.userChoice; if (r && r.outcome === "accepted") $("instMsg").textContent = "Instalando…"; } catch (e) {}
+        deferred = null;
+      });
     }
-    $("btnInstall").addEventListener("click", async () => {
-      if (!deferred) return; deferred.prompt();
-      try { await deferred.userChoice; } catch (e) {}
-      deferred = null; $("install").classList.remove("on");
+    window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; });
+    window.addEventListener("appinstalled", () => {
+      $("instMsg").className = "lock-msg ok";
+      $("instMsg").textContent = "¡Listo! Abrí Telecom Partes desde el ícono de tu pantalla de inicio.";
+      $("instBtn").style.display = "none";
     });
-    $("btnInstallClose").addEventListener("click", () => { store.set("installDismissed", Date.now()); $("install").classList.remove("on"); });
-    window.addEventListener("appinstalled", () => { $("install").classList.remove("on"); toast("App instalada ✓"); });
   }
 
   // ---------- Paquete de imágenes ----------
@@ -1284,7 +1306,6 @@
       return (await crypto.subtle.verify(ECDSA, await getPub(), sig, t)) ? k : null;
     } catch (e) { return null; }
   }
-  let masterKey = null;
   async function generarCodigo(p, u, nombre) {
     let nb = new TextEncoder().encode((nombre || "").trim());
     while (nb.length > 60) { nombre = nombre.slice(0, -1); nb = new TextEncoder().encode(nombre.trim()); }
@@ -1302,10 +1323,23 @@
       if (!r.ok) return null; const j = await r.json(); return Array.isArray(j.bajas) ? j.bajas : null;
     } catch (e) { return null; }
   }
-  function mostrarLic(txt) { $("licPie").textContent = txt ? " - " + txt : ""; }
+  // Nombre del usuario abajo del pie: celeste si es hombre, rosa si es mujer (según el nombre de pila)
+  const NOMBRES_F = new Set(("ada ana anabela adriana agustina ailen aldana alejandra alicia analia andrea antonella abril ayelen barbara beatriz belen brenda brisa " +
+    "camila candela carla carolina catalina cecilia celeste cinthia cintia claudia cristina daiana daniela dayana debora deborah delia dolores elena emilia " +
+    "estela eugenia evelyn fernanda florencia gabriela gimena gisela graciela griselda guadalupe ines irene isabel ivana jesica jessica jimena jorgelina " +
+    "josefina judith julia julieta karina laura liliana lorena lucia luciana lucrecia luisa magdalena marcela maria mariana marianela mariel mariela " +
+    "marina marisa marta martina melina melisa mercedes micaela milagros miriam mirta monica nadia nancy natalia natali noelia nora norma olga pamela " +
+    "patricia paula priscila raquel rebeca rocio romina rosa rosana roxana ruth sabrina sandra sara selena silvana silvia silvina sofia soledad " +
+    "stella susana tamara teresa valentina valeria vanesa vanessa vanina veronica victoria virginia viviana ximena yamila yanina yesica yolanda zulema").split(" "));
+  const esMujer = n => sinTildes(n || "").toLowerCase().split(/[^a-zñ]+/).some(w => NOMBRES_F.has(w));
+  function mostrarLic(txt) {
+    const el = $("licPie"); el.textContent = txt || "";
+    el.className = "pie-user " + (txt && esMujer(txt) ? "f" : "m");
+  }
   function bloquear(msg) { $("lock").classList.add("on"); $("lockMsg").className = "lock-msg"; $("lockMsg").textContent = msg || ""; }
   function desbloquear() { $("lock").classList.remove("on"); }
   async function verificarLicencia() {
+    if (soloInstalar) return;
     const clave = store.get("maestra", "");
     if (clave) {
       desbloquear();
@@ -1349,7 +1383,7 @@
     catch (e) { $("lockCod").focus(); toast("Mantené apretado el cuadro y elegí “Pegar”"); }
   });
   // Link de activación (…/#c=TP-…): abre la app con el código ya cargado
-  if (/^#c=/.test(location.hash)) {
+  if (/^#c=/.test(location.hash) && !soloInstalar) {
     $("lockCod").value = decodeURIComponent(location.hash.slice(3));
     history.replaceState(null, "", location.pathname + location.search);
     setTimeout(activar, 0);
@@ -1374,7 +1408,7 @@
     if (!a || a.p !== p) { a = { p, cod: {} }; store.set("accesos", a); }
     return a;
   }
-  function abrirMaster() { $("panelMaster").style.display = ""; renderAccesos(); }
+  function abrirMaster() { $("panelMaster").style.display = ""; renderAccesos(); renderPersonal(); refreshPreview(); }
   let borrarArmado = { id: 0, t: 0 };
   async function asegurarCodigo(u) {         // genera (o actualiza) el código del usuario para este período
     const a = accesos();
@@ -1427,7 +1461,7 @@
         if (borrarArmado.id !== u.id || Date.now() - borrarArmado.t > 3000) { borrarArmado = { id: u.id, t: Date.now() }; toast("Tocá ✕ de nuevo para quitar a " + u.n); return; }
         store.set("usuarios", usuarios().filter(x => x.id !== u.id));
         const a2 = accesos(); delete a2.cod[u.id]; if (a2.copiado) delete a2.copiado[u.id]; store.set("accesos", a2);
-        toast("Usuario quitado"); renderAccesos();
+        toast("Usuario quitado"); renderAccesos(); renderPersonal(); refreshPreview();
       });
       row.appendChild(del);
       $("accList").appendChild(row);
@@ -1439,7 +1473,7 @@
     if (us.length >= MAX_USUARIOS) { toast("Llegaste al máximo de " + MAX_USUARIOS + " usuarios"); return; }
     const id = store.get("usuarioSig", us.length + 1);
     us.push({ id, n }); store.set("usuarios", us); store.set("usuarioSig", id + 1);
-    $("accNuevo").value = ""; toast("Agregado: " + n); renderAccesos();
+    $("accNuevo").value = ""; toast("Agregado: " + n + " (también en el punto 4)"); renderAccesos(); renderPersonal();
   });
   $("accNuevo").addEventListener("keydown", e => { if (e.key === "Enter") $("accAgregar").click(); });
 
