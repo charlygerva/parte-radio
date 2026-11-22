@@ -65,6 +65,13 @@
   .perslist label{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd;font-size:14.5px;cursor:pointer;user-select:none}
   .perslist input{width:20px;height:20px;accent-color:var(--navy);flex:none}
   .perslist label.on{border-color:var(--navy);background:#e8eef8;font-weight:600}
+  /* Colores por división (transparentes): Radio azul, Telefonía verde, Sitio Troncalizado amarillo */
+  .d-radio{background:rgba(37,99,235,.13) !important;border-color:rgba(37,99,235,.40) !important}
+  .d-telefonia{background:rgba(22,163,74,.13) !important;border-color:rgba(22,163,74,.40) !important}
+  .d-troncalizado{background:rgba(234,179,8,.20) !important;border-color:rgba(202,138,4,.50) !important}
+  .perslist label.on.d-radio{background:rgba(37,99,235,.30) !important;border:2px solid rgb(37,99,235) !important}
+  .perslist label.on.d-telefonia{background:rgba(22,163,74,.30) !important;border:2px solid rgb(22,163,74) !important}
+  .perslist label.on.d-troncalizado{background:rgba(234,179,8,.40) !important;border:2px solid rgb(202,138,4) !important}
   .bgpick{display:flex;gap:8px;margin-bottom:8px}
   .modepick{display:flex;gap:8px;margin-bottom:10px}
   .modepick button{flex:1;min-height:44px;font-size:14.5px}
@@ -73,6 +80,9 @@
   .divpick .lbl{font-size:12.5px;color:var(--muted);font-weight:700;margin-right:2px}
   .divpick button{flex:1;min-height:40px;padding:6px 8px;font-size:13.5px;line-height:1.15}
   .divpick button.on{border:2px solid var(--navy);background:#e8eef8;color:var(--navy)}
+  .divpick button.on.d-radio{background:rgba(37,99,235,.32) !important;border:2px solid rgb(37,99,235) !important;color:#0f2f73}
+  .divpick button.on.d-telefonia{background:rgba(22,163,74,.32) !important;border:2px solid rgb(22,163,74) !important;color:#0d4d24}
+  .divpick button.on.d-troncalizado{background:rgba(234,179,8,.42) !important;border:2px solid rgb(202,138,4) !important;color:#5c3d00}
   .bgpick button{flex:1;padding:6px;gap:8px;justify-content:flex-start;min-height:52px;font-size:14px}
   .bgpick img{width:40px;height:40px;border-radius:6px;object-fit:cover;border:1px solid var(--line)}
   .bgpick button.on{border:2px solid var(--navy);background:#e8eef8;color:var(--navy)}
@@ -227,7 +237,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 19 · 21/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 20 · 22/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -731,6 +741,36 @@
     });
   }
   // Vista previa como la muestra WhatsApp (los *asteriscos* se ven en negrita)
+  let markPickers = null;
+  // División de cada efectivo (por apellido). Se usa para elegir la división sola y para los colores.
+  const DIV_DE_PERSONAL = {
+    radio: ["gervasoni", "ramos", "fuentes", "roblero", "apaz", "cabral", "kiefer", "kieffer", "aliaga", "arregui", "bini", "ponce", "britos"],
+    telefonia: ["alvarado", "gomez", "bustos", "ferrarese", "rocha", "seydell", "maldonado"],
+    troncalizado: ["valdez", "pereyra", "guerrero", "celiz", "sanchez", "ibanez"]
+  };
+  const sinTildes = t => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  function divisionDe(nombre) {
+    const n = sinTildes(nombre);
+    for (const [div, aps] of Object.entries(DIV_DE_PERSONAL))
+      if (aps.some(a => new RegExp("(^|[^a-z])" + a + "([^a-z]|$)").test(n))) return div;
+    return null;
+  }
+  // Si todo el personal elegido es de una misma división, se elige esa división (imagen y texto)
+  function divisionSegunPersonal() {
+    const nombres = selectedPersonal().concat($("personal").value.split("\n").map(x => x.trim()).filter(Boolean));
+    const divs = new Set(nombres.map(divisionDe).filter(Boolean));
+    return divs.size === 1 ? [...divs][0] : (divs.size > 1 ? "mezcla" : null);
+  }
+  function aplicarDivisionSegunPersonal(avisar) {
+    const d = divisionSegunPersonal();
+    if (d === "mezcla") { if (avisar) toast("Hay personal de distintas divisiones: elegí la división a mano", 3500); return; }
+    if (!d || d === divId) return;
+    divId = d; store.set("division", d);
+    if (typeof markPickers === "function") markPickers();
+    draw(); refreshPreview();
+    if (avisar) toast("División " + curDiv().name + " (según el personal)");
+  }
+
   // Personal seleccionable (se recuerda en cada celular)
   let persSel = [];
   function selectedPersonal() { return PERSONAL_LIST.filter(n => persSel.includes(n)); }
@@ -738,11 +778,13 @@
     $("persList").innerHTML = "";
     PERSONAL_LIST.forEach(n => {
       const lab = document.createElement("label");
+      const dv = divisionDe(n); if (dv) lab.classList.add("d-" + dv);
       const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = persSel.includes(n);
       lab.classList.toggle("on", cb.checked);
       cb.addEventListener("change", () => {
         persSel = cb.checked ? persSel.concat(n) : persSel.filter(x => x !== n);
         lab.classList.toggle("on", cb.checked); store.set("persSel", persSel); updatePersCount(); refreshPreview();
+        aplicarDivisionSegunPersonal(true);
       });
       lab.appendChild(cb); lab.appendChild(document.createTextNode(n));
       $("persList").appendChild(lab);
@@ -786,6 +828,7 @@
     $("lugares").innerHTML = lugares.map(l => "<option value=\"" + l.replace(/"/g, "&quot;") + "\">").join("");
   }
   FIELDS.forEach(id => $(id).addEventListener("input", () => { store.set(id === "encabezado" ? "encabezado2" : id, $(id).value); $(id).classList.remove("invalid"); refreshPreview(); }));
+  $("personal").addEventListener("change", () => aplicarDivisionSegunPersonal(true));
   $("fecha").addEventListener("input", () => { $("fecha").classList.remove("invalid"); refreshPreview(); });
 
   // Campos obligatorios: fecha y contenido (y al menos una foto para la imagen)
@@ -967,7 +1010,7 @@
     const src = dv.src[b.id];
     const img = new Image(); img.onload = () => draw(); img.src = src; BG_IMGS[src] = img;
   }));
-  const markPickers = () => {
+  markPickers = () => {
     document.querySelectorAll("#bgPick button").forEach(x => {
       x.classList.toggle("on", x.dataset.id === bgId);
       x.querySelector("img").src = curDiv().src[x.dataset.id];
@@ -983,11 +1026,11 @@
   });
   DIVISIONES.forEach(dv => {
     const btn = document.createElement("button");
-    btn.type = "button"; btn.dataset.id = dv.id; btn.textContent = dv.name;
+    btn.type = "button"; btn.dataset.id = dv.id; btn.textContent = dv.name; btn.classList.add("d-" + dv.id);
     btn.addEventListener("click", () => { divId = dv.id; store.set("division", divId); markPickers(); draw(); refreshPreview(); });
     $("divPick").appendChild(btn);
   });
-  markPickers(); refreshPreview();
+  markPickers(); aplicarDivisionSegunPersonal(false); refreshPreview();
   updateUI();
 })();
 </script>
