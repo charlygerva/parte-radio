@@ -63,7 +63,7 @@
     border-radius:16px;padding:14px;margin-bottom:14px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.6)}
   .card h2{margin:0 0 12px;font-family:var(--display);font-weight:700;font-size:16px;color:#efe2ff;display:flex;align-items:center;gap:9px}
-  .step{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--flu);color:#1a0533;
+  .step{flex:none;display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--flu);color:#1a0533;
     font-family:var(--display);font-size:13px;font-weight:700;box-shadow:0 0 10px var(--flu-soft), 0 0 2px var(--flu)}
   .canvas-wrap{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--neon-soft);background:#000;
     box-shadow:0 0 0 1px rgba(196,92,255,.15), 0 0 26px rgba(196,92,255,.18)}
@@ -135,7 +135,21 @@
   .modepick button.m-img.on{background:rgba(255,43,214,.26);border:1px solid #ff4fe0;color:#fff;
     box-shadow:0 0 16px rgba(255,43,214,.6), inset 0 0 10px rgba(255,43,214,.2);text-shadow:0 0 8px rgba(255,79,224,.8)}
   .divpick{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;align-items:stretch}
-  @media (min-width:400px){.divpick{grid-template-columns:repeat(4,1fr)}}
+  @media (min-width:640px){.divpick{grid-template-columns:repeat(4,1fr)}}
+  /* Secciones dentro de Radio (OCE / STR) y Telefonía (TT / STT) */
+  .divpick button.has-secc{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:6px 6px}
+  .secc{position:relative;flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:26px;padding:0 6px;
+    border-radius:7px;font-family:var(--display);font-size:11.5px;font-weight:700;letter-spacing:.3px;color:var(--c);
+    border:1px solid var(--c);background:rgba(0,0,0,.35);box-shadow:0 0 7px var(--g);text-shadow:0 0 6px var(--g);cursor:pointer}
+  .secc.on{background:var(--g);color:#fff;box-shadow:0 0 14px var(--c), inset 0 0 8px var(--g)}
+  .secc.on::after{content:"✓";position:absolute;top:-9px;right:-6px;font-size:14px;font-weight:800;color:var(--flu);
+    text-shadow:0 0 8px var(--flu-soft), 0 0 3px #000}
+  .secc.s-oce{--c:#3ee8ff;--g:rgba(62,232,255,.45)}
+  .secc.s-str{--c:#ff8a1f;--g:rgba(255,138,31,.45)}
+  .secc.s-tt{--c:#f4ff3a;--g:rgba(244,255,58,.40)}
+  .secc.s-stt{--c:#ff3b5c;--g:rgba(255,59,92,.45)}
+  .secc.s-tt.on{color:#14032a;text-shadow:none}
+  .dv-name{flex:1;text-align:center;min-width:0}
   /* Depto. Telecom.: rosa flúor */
   .d-depto{background:rgba(255,43,214,.10) !important;border-color:rgba(255,92,224,.50) !important}
   .divpick button.on.d-depto{background:rgba(255,43,214,.26) !important;border:1px solid #ff4fe0 !important;color:#fff;
@@ -174,7 +188,7 @@
   .sheet h3{margin:0 0 6px;font-family:var(--display);color:#fff;font-size:17px;text-shadow:0 0 10px rgba(196,92,255,.6)}
   .sheet img{width:100%;border-radius:10px;border:1px solid var(--line);display:block;-webkit-touch-callout:default}
   .steps{font-size:13.5px;color:var(--ink);line-height:1.45;padding-left:20px;margin:10px 0}
-  .counter{font-size:12.5px;color:var(--muted);margin-left:auto;font-family:var(--display)}
+  .counter{white-space:nowrap;flex:none;font-size:12.5px;color:var(--muted);margin-left:auto;font-family:var(--display)}
   .layoutinfo{font-size:12.5px;color:var(--muted)}
   /* Pie de la app: amarillo flúor neón */
   .pie{text-align:center;font-size:12.5px;font-weight:700;letter-spacing:.3px;margin:-90px 0 100px;color:var(--flu);
@@ -208,9 +222,9 @@
     </div>
   </div>
 
-  <!-- 1. FOTOS -->
+  <!-- 1. DEPENDENCIA Y FORMATO -->
   <section class="card">
-    <h2><span class="step">1</span> Fotos <span class="counter" id="count">0 / 10</span></h2>
+    <h2><span class="step">1</span> Seleccione Dependencia y formato del Parte <span class="counter" id="count">0 / 10</span></h2>
     <!-- Orden: divisiones arriba, con imagen / solo texto al medio, fondos abajo -->
     <div class="divpick" id="divPick"></div>
     <div class="modepick" id="modePick">
@@ -304,7 +318,7 @@
   </section>
 </main>
 
-<p class="pie">App by Charly Gervasoni - Versión 38 - 22/11/2026</p>
+<p class="pie">App by Charly Gervasoni - Versión 39 - 22/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -345,9 +359,11 @@
   ];
   const DIVISIONES = [
     { id: "depto", name: "Depto. Telecom.", abrev: "DEPTO. TELECOM.", src: { claro: "parte-depto-blanco.jpg", oscuro: "parte-depto.jpg" } },
-    { id: "radio", name: "Radio", abrev: "DIV. RADIO", src: { claro: "parte-radio-blanco.jpg", oscuro: "parte-radio.jpg" } },
+    { id: "radio", name: "Radio", abrev: "DIV. RADIO",
+      secciones: [{ id: "oce", label: "OCE", linea: "SECCIÓN O.C.E." }, { id: "str", label: "STR", linea: "SECCIÓN TÉCNICA RADIOELÉCTRICA" }], src: { claro: "parte-radio-blanco.jpg", oscuro: "parte-radio.jpg" } },
     { id: "troncalizado", name: "Sitio Troncalizado", abrev: "DIV. SITIO TRONCALIZADO", src: { claro: "parte-troncalizado-blanco.jpg", oscuro: "parte-troncalizado.jpg" } },
-    { id: "telefonia", name: "Telefonía", abrev: "DIV. TELEFONÍA", src: { claro: "parte-telefonia-blanco.jpg", oscuro: "parte-telefonia.jpg" } }
+    { id: "telefonia", name: "Telefonía", abrev: "DIV. TELEFONÍA",
+      secciones: [{ id: "tt", label: "TT", linea: "SECCIÓN TRAMITACIÓN TELEFÓNICA" }, { id: "stt", label: "STT", linea: "SECCIÓN TÉCNICA TELEFÓNICA" }], src: { claro: "parte-telefonia-blanco.jpg", oscuro: "parte-telefonia.jpg" } }
   ];
   const W = 1080, H = 1440;  // formato vertical 3:4
   // Zona libre dentro del marco (entre las torres y debajo del título)
@@ -419,6 +435,8 @@
   const cv = $("cv"), ctx = cv.getContext("2d");
   const BG_IMGS = {};
   let bgId = "oscuro", divId = "radio";
+  let seccion = "";   // "oce" | "str" (Radio) · "tt" | "stt" (Telefonía) · "" = ninguna
+  const curSecc = () => (curDiv().secciones || []).find(x => x.id === seccion) || null;
   const curDiv = () => DIVISIONES.find(d => d.id === divId) || DIVISIONES[0];
   const curBG = () => { const b = BACKGROUNDS.find(x => x.id === bgId) || BACKGROUNDS[0]; return Object.assign({}, b, { src: curDiv().src[b.id] }); };
   let photos = [];          // {src, w, h, zoom, px, py}
@@ -747,6 +765,8 @@
     // El renglón "DIV. ..." del encabezado sigue a la división elegida en el editor
     const headLines = DEF_HEADER.split("\n").map(l => l.trim().replace(/\*/g, "")).filter(Boolean)
       .map(l => /^DIV(\.|\s)/i.test(l) ? curDiv().abrev : l);
+    // Si se tildó una sección (OCE/STR en Radio, TT/STT en Telefonía) va un renglón más debajo de la división
+    if (curSecc()) headLines.push(curSecc().linea);
     // WhatsApp no aplica negrita a través de saltos de línea: cada renglón va con sus propios *asteriscos*
     const header = headLines.map(l => "*" + l + "*").join("\n");
     const titulo = $("titulo").value.trim().toUpperCase();
@@ -1080,6 +1100,7 @@
   bgId = "oscuro";
   divId = store.get("division", "radio");
   if (!DIVISIONES.some(d => d.id === divId)) divId = "radio";
+  seccion = store.get("seccion", "");
   DIVISIONES.forEach(dv => BACKGROUNDS.forEach(b => {
     const src = dv.src[b.id];
     const img = new Image(); img.onload = () => draw(); img.src = src; BG_IMGS[src] = img;
@@ -1089,7 +1110,13 @@
       x.classList.toggle("on", x.dataset.id === bgId);
       x.querySelector("img").src = curDiv().src[x.dataset.id];
     });
+    // La sección tildada solo vale para su división: si se cambia de división, se destilda
+    if (seccion && !curSecc()) { seccion = ""; store.set("seccion", ""); }
     document.querySelectorAll("#divPick button").forEach(x => x.classList.toggle("on", x.dataset.id === divId));
+    document.querySelectorAll("#divPick .secc").forEach(x => {
+      x.classList.toggle("on", x.dataset.secc === seccion);
+      x.setAttribute("aria-pressed", x.dataset.secc === seccion ? "true" : "false");
+    });
   };
   BACKGROUNDS.forEach(b => {
     const btn = document.createElement("button");
@@ -1100,7 +1127,24 @@
   });
   DIVISIONES.forEach(dv => {
     const btn = document.createElement("button");
-    btn.type = "button"; btn.dataset.id = dv.id; btn.textContent = dv.name; btn.classList.add("d-" + dv.id);
+    btn.type = "button"; btn.dataset.id = dv.id; btn.classList.add("d-" + dv.id);
+    if (dv.secciones) {
+      btn.classList.add("has-secc");
+      const chip = sc => {
+        const c = document.createElement("span");
+        c.className = "secc s-" + sc.id; c.dataset.secc = sc.id; c.textContent = sc.label;
+        c.setAttribute("role", "button"); c.setAttribute("aria-pressed", "false"); c.title = sc.linea;
+        c.addEventListener("click", e => {
+          e.stopPropagation();
+          seccion = seccion === sc.id ? "" : sc.id; store.set("seccion", seccion);
+          divId = dv.id; store.set("division", divId);
+          markPickers(); draw(); refreshPreview();
+        });
+        return c;
+      };
+      const nm = document.createElement("span"); nm.className = "dv-name"; nm.textContent = dv.name;
+      btn.append(chip(dv.secciones[0]), nm, chip(dv.secciones[1]));
+    } else btn.textContent = dv.name;
     btn.addEventListener("click", () => { divId = dv.id; store.set("division", divId); markPickers(); draw(); refreshPreview(); });
     $("divPick").appendChild(btn);
   });
