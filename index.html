@@ -66,6 +66,9 @@
   .perslist input{width:20px;height:20px;accent-color:var(--navy);flex:none}
   .perslist label.on{border-color:var(--navy);background:#e8eef8;font-weight:600}
   .bgpick{display:flex;gap:8px;margin-bottom:8px}
+  .modepick{display:flex;gap:8px;margin-bottom:10px}
+  .modepick button{flex:1;min-height:44px;font-size:14.5px}
+  .modepick button.on{border:2px solid var(--navy);background:#e8eef8;color:var(--navy)}
   .divpick{display:flex;gap:6px;margin-bottom:10px;align-items:center;flex-wrap:wrap}
   .divpick .lbl{font-size:12.5px;color:var(--muted);font-weight:700;margin-right:2px}
   .divpick button{flex:1;min-height:40px;padding:6px 8px;font-size:13.5px;line-height:1.15}
@@ -125,6 +128,12 @@
   <!-- 1. FOTOS -->
   <section class="card">
     <h2><span class="step">1</span> Fotos <span class="counter" id="count">0 / 10</span></h2>
+    <div class="modepick" id="modePick">
+      <button type="button" data-mode="img" class="on">📷 Con imagen</button>
+      <button type="button" data-mode="txt">💬 Solo texto</button>
+    </div>
+    <p class="hint" id="txtNote" style="display:none;margin:2px 2px 0">El parte se manda <b>solo con el texto</b>, sin imagen. Para agregar fotos, elegí “Con imagen”.</p>
+    <div id="photoEditor">
     <div class="bgpick" id="bgPick"></div>
     <div class="divpick" id="divPick"><span class="lbl">División:</span></div>
     <div class="canvas-wrap"><canvas id="cv" width="1080" height="1440"></canvas></div>
@@ -160,6 +169,7 @@
       <div class="slider"><span>Esquinas</span><input type="range" id="radius" min="0" max="40" step="1" value="10"></div>
       <label class="chk"><input type="checkbox" id="shadow" checked> Sombra suave detrás de cada foto</label>
     </details>
+    </div>
   </section>
 
   <!-- 2. MENSAJE -->
@@ -217,7 +227,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 17 · 21/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 19 · 21/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -308,15 +318,15 @@
     "Cabo 1° (T) Aliaga Magdalena",
     "Pers. Civil Arregui Alexis Martín",
     "Pers. Civil Bini Deborah Sofía",
-    "Of. Insp. Melina Rocha",
-    "Sgto. Ayte. Sebastián Ferrarese",
+    "Of Insp Rocha Melina",
+    "Sgto Ayte Ferrarese Sebastián",
     "Sgto. 1° Belen Seydell",
     "Sgto. 1° Diego Bustos",
     "Sgto. Alvarado Tomas",
     "Cabo 1° Tec. Gomez Carlos",
-    "Agte. Tec. Carlos Maldonado",
+    "Agte Tec Maldonado Carlos",
     "Of Ppal Ibañez Lucrecia",
-    "SubOfPpal Valdez Diego",
+    "Sub Of Ppal Valdez Diego",
     "Sgto 1° Pereyra Cristian",
     "Cabo 1° Guerrero David",
     "Personal Civil Celiz Ignacio",
@@ -841,10 +851,42 @@
     $("modal").classList.add("on");
   }
 
+  // ---------- Con imagen / solo texto ----------
+  let soloTexto = false;
+  function setMode(txt) {
+    soloTexto = txt;
+    document.querySelectorAll("#modePick button").forEach(b => b.classList.toggle("on", (b.dataset.mode === "txt") === txt));
+    $("photoEditor").style.display = txt ? "none" : "";
+    $("txtNote").style.display = txt ? "" : "none";
+    $("count").style.display = txt ? "none" : "";
+    $("btnSave").style.display = txt ? "none" : "";
+    $("btnShare").textContent = txt ? "Enviar texto por WhatsApp" : "Enviar por WhatsApp";
+    if (txt) { sel = -1; swapFrom = -1; }
+  }
+  document.querySelectorAll("#modePick button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode === "txt")));
+
+  // Solo texto: abre WhatsApp directo con el mensaje escrito (sin pasar por el menú de compartir)
+  function sendTextOnly(text) {
+    const mobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+    const enc = encodeURIComponent(text);
+    $("mWa").href = "https://wa.me/?text=" + enc;
+    let left = false;
+    const onHide = () => { if (document.visibilityState === "hidden") left = true; };
+    document.addEventListener("visibilitychange", onHide);
+    if (mobile) { location.href = "whatsapp://send?text=" + enc; }
+    else { const a = document.createElement("a"); a.href = "https://wa.me/?text=" + enc; a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove(); left = true; }
+    // Si WhatsApp no se abrió, mostramos la otra forma: copiar el texto y abrir WhatsApp a mano
+    setTimeout(() => {
+      document.removeEventListener("visibilitychange", onHide);
+      if (!left) toast("Si no se abrió WhatsApp: el texto ya está copiado, abrí WhatsApp y pegalo", 4500);
+    }, 1800);
+  }
+
   $("btnShare").addEventListener("click", async () => {
-    if (!validate(true)) return;
+    if (!validate(!soloTexto)) return;
     rememberLugar();
     const text = buildMessage();
+    if (soloTexto) { copyText(true); sendTextOnly(text); return; }
     copyText(true); // el texto queda en el portapapeles por si WhatsApp no toma la descripción
     const blob = (!blobDirty && cachedBlob) ? cachedBlob : await getBlob();
     const file = new File([blob], fileName(), { type: "image/jpeg" });
@@ -869,7 +911,7 @@
   $("btnNew").addEventListener("click", () => {
     if (Date.now() - newArmed > 3000) { newArmed = Date.now(); toast("Tocá de nuevo para confirmar"); return; }
     newArmed = 0; rememberLugar();
-    photos = []; sel = -1; swapFrom = -1;
+    photos = []; sel = -1; swapFrom = -1; setMode(false);
     ["contenido", "lugar", "titulo"].forEach(id => { $(id).value = ""; store.set(id, ""); $(id).classList.remove("invalid"); });
     $("fecha").value = todayISO(); loadFields(); refreshPreview(); updateUI(); toast("Listo, parte nuevo");
     window.scrollTo({ top: 0, behavior: "smooth" });
