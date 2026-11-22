@@ -145,6 +145,19 @@
   .perslist label.on.d-troncalizado input{accent-color:#facc15}
   .perslist label.on.d-depto{background:rgba(255,43,214,.24) !important;border:1px solid #ff4fe0 !important;color:#fff;box-shadow:0 0 14px rgba(255,43,214,.55)}
   .perslist label.on.d-depto input{accent-color:#ff4fe0}
+  /* Punto 4: Radio turquesa, Jefes rosa, Sitio amarillo, Telefonía verde (flúor neón) */
+  .perslist label.d-radio{background:rgba(31,245,214,.10) !important;border-color:rgba(31,245,214,.55) !important}
+  .perslist label.d-depto{background:rgba(255,43,214,.10) !important;border-color:rgba(255,79,224,.60) !important}
+  .perslist label.d-troncalizado{background:rgba(244,255,58,.08) !important;border-color:rgba(244,255,58,.55) !important}
+  .perslist label.d-telefonia{background:rgba(57,255,106,.08) !important;border-color:rgba(57,255,106,.55) !important}
+  .perslist label.on.d-radio{background:rgba(31,245,214,.22) !important;border:1px solid #1ff5d6 !important;box-shadow:0 0 14px rgba(31,245,214,.55)}
+  .perslist label.on.d-depto{background:rgba(255,43,214,.24) !important;border:1px solid #ff4fe0 !important;box-shadow:0 0 14px rgba(255,43,214,.6)}
+  .perslist label.on.d-troncalizado{background:rgba(244,255,58,.18) !important;border:1px solid #f4ff3a !important;box-shadow:0 0 14px rgba(244,255,58,.5)}
+  .perslist label.on.d-telefonia{background:rgba(57,255,106,.18) !important;border:1px solid #39ff6a !important;box-shadow:0 0 14px rgba(57,255,106,.5)}
+  .perslist label.on.d-radio input{accent-color:#1ff5d6}
+  .perslist label.on.d-depto input{accent-color:#ff4fe0}
+  .perslist label.on.d-troncalizado input{accent-color:#f4ff3a}
+  .perslist label.on.d-telefonia input{accent-color:#39ff6a}
   /* Otra área: celeste flúor (hombre) y turquesa flúor (mujer) */
   .perslist label.g-m{background:rgba(62,232,255,.09);border-color:rgba(62,232,255,.45)}
   .perslist label.g-f{background:rgba(31,245,214,.09);border-color:rgba(31,245,214,.45)}
@@ -413,7 +426,7 @@
         <option value="telefonia">División Telefonía</option>
         <option value="troncalizado">División Sitio Troncalizado</option>
         <option value="depto">Jefes</option>
-        <option value="">Otra área</option>
+        <option value="otra">Otra área</option>
       </select>
       <button type="button" id="accAgregar" class="primary" style="flex:none">Agregar</button>
     </div>
@@ -427,7 +440,7 @@
   </section>
 </main>
 
-<p class="pie"><span class="pie-l1">App by Charly Gervasoni - Versión 51 - 22/11/2026</span><span id="licPie" class="pie-user"></span></p>
+<p class="pie"><span class="pie-l1">App by Charly Gervasoni - Versión 52 - 22/11/2026</span><span id="licPie" class="pie-user"></span></p>
 
 <div class="bar"><div class="inner">
   <button id="btnNew" class="newp" title="Borra fotos y novedades"><span>Nuevo</span><span>parte</span></button>
@@ -998,7 +1011,10 @@
   };
   const sinTildes = t => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   function divisionDe(nombre) {
-    const extra = divDeLista(nombre); if (extra !== undefined) return extra || null;
+    const extra = divDeLista(nombre);
+    if (extra === "otra") return null;                 // otra área: color por género
+    if (extra) return extra;                           // área elegida en el punto 5
+    // sin área cargada: se deduce por el apellido (lista de siempre)
     const n = sinTildes(nombre);
     for (const [div, aps] of Object.entries(DIV_DE_PERSONAL))
       if (aps.some(a => new RegExp("(^|[^a-z])" + a + "([^a-z]|$)").test(n))) return div;
