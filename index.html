@@ -143,9 +143,9 @@
       <button type="button" data-mode="txt">💬 Solo texto</button>
     </div>
     <p class="hint" id="txtNote" style="display:none;margin:2px 2px 0">El parte se manda <b>solo con el texto</b>, sin imagen. Para agregar fotos, elegí “Con imagen”.</p>
+    <div class="divpick" id="divPick"><span class="lbl">División:</span></div>
     <div id="photoEditor">
     <div class="bgpick" id="bgPick"></div>
-    <div class="divpick" id="divPick"><span class="lbl">División:</span></div>
     <div class="canvas-wrap"><canvas id="cv" width="1080" height="1440"></canvas></div>
     <p class="hint" id="hint">Agregá de 1 a 10 fotos. <b>Mantené presionada una foto y arrastrala</b> para acomodarla dentro de su cuadro. Con dos dedos (o con el zoom) la agrandás; si una foto no se mueve, agrandala un poco.</p>
 
@@ -237,7 +237,7 @@
   </section>
 </main>
 
-<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 20 · 22/11/2026</p>
+<p style="text-align:center;font-size:12px;color:#8a96a6;margin:-90px 0 100px">Versión 21 · 22/11/2026</p>
 
 <div class="bar"><div class="inner">
   <button id="btnShare" class="wa">Enviar por WhatsApp</button>
@@ -763,7 +763,7 @@
   }
   function aplicarDivisionSegunPersonal(avisar) {
     const d = divisionSegunPersonal();
-    if (d === "mezcla") { if (avisar) toast("Hay personal de distintas divisiones: elegí la división a mano", 3500); return; }
+    if (d === "mezcla") { if (avisar) toast("Hay personal de distintas divisiones: elegí la división arriba, en “División”", 4000); return; }
     if (!d || d === divId) return;
     divId = d; store.set("division", d);
     if (typeof markPickers === "function") markPickers();
