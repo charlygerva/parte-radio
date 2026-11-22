@@ -1,6 +1,6 @@
 {
-  "name": "Parte de Novedades - Departamento Telecomunicaciones",
-  "short_name": "Parte Radio",
+  "name": "Telecom Partes",
+  "short_name": "Telecom Partes",
   "description": "Arma la imagen y el mensaje de WhatsApp del parte de novedades.",
   "start_url": "./",
   "scope": "./",
